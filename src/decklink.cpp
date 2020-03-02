@@ -29,7 +29,7 @@ DeckLinkReceiver::DeckLinkReceiver(IDeckLink *_deckLink)
             return;
         }
 
-        if (this->deckLinkInput->EnableVideoInput(bmdModeHD720p50, bmdFormat10BitYUV, bmdVideoInputEnableFormatDetection) != S_OK) {
+        if (this->deckLinkInput->EnableVideoInput(bmdModeNTSC, bmdFormat10BitYUV, bmdVideoInputEnableFormatDetection) != S_OK) {
             std::cout << "Failed to enable video stream." << std::endl;
             return;
         }
@@ -70,6 +70,14 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
 HRESULT
 DeckLinkReceiver::VideoInputFormatChanged(BMDVideoInputFormatChangedEvents notificationEvents, IDeckLinkDisplayMode *newDisplayMode, BMDDetectedVideoInputFormatFlags detectedSignalFlags)
 {
+    if (newDisplayMode) {
+        const char* name;
+
+        if (newDisplayMode->GetName(&name) == S_OK) {
+            std::cout << "Detected new video mode: " << name << std::endl;
+        }
+    }
+
     return S_OK;
 }
 
