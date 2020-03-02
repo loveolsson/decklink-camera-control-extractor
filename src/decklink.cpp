@@ -20,9 +20,26 @@ IDeckLink *GetFirstDeckLink()
 DeckLinkReceiver::DeckLinkReceiver(IDeckLink *_deckLink)
     : deckLink(_deckLink)
 {
+    IDeckLinkProfileAttributes *attr;
+
     if (this->deckLink->QueryInterface(IID_IDeckLinkInput, (void **)&this->deckLinkInput) == S_OK)
     {
         std::cout << "DeckLink card has input" << std::endl;
+
+        if (this->deckLinkInput->QueryInterface(IID_IDeckLinkProfileAttributes, (void**)&attr) != S_OK) {
+            std::cout << "Could not get IDeckLinkProfileAttributes." << std::endl;
+            return;
+        }
+        
+        bool requires10bit;
+        attr->GetFlag(BMDDeckLinkVANCRequires10BitYUVVideoFrames, &requires10bit);
+
+        if (requires10bit) {
+            std::cout << "Requires 10bit for VANC." << std::endl;
+        }
+
+        attr->Release();
+
 
         if (this->deckLinkInput->SetCallback(this) != S_OK) {
             std::cout << "Failed to set input callback." << std::endl;
