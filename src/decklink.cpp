@@ -99,18 +99,18 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
         uint32_t size;
 
         if (packets->GetFirstPacketByID('Q', 'R', &packet) == S_OK) {
-            packet->GetBytes(bmdAncillaryPacketFormatUInt8, (const void **)&data, &size);
-
-            std::cout << "QR Len: " << size << std::endl;
+            if (packet->GetBytes(bmdAncillaryPacketFormatUInt8, (const void **)&data, &size) == S_OK) {
+                std::cout << "QR Len: " << size << std::endl;
+            }
 
             packet->Release();
         }
 
         if (packets->GetFirstPacketByID('Q', 'S', &packet) == S_OK) {
-            packet->GetBytes(bmdAncillaryPacketFormatUInt8, (const void **)&data, &size);
-
-            std::cout << "QS Len: " << size << std::endl;
-
+            if (packet->GetBytes(bmdAncillaryPacketFormatUInt8, (const void **)&data, &size) == S_OK) {
+                std::cout << "QS Len: " << size << std::endl;
+            }
+    
             packet->Release();
         }
 
