@@ -8,6 +8,7 @@
         "thread": "cpp",
         "tuple": "cpp",
         "typeinfo": "cpp",
-        "ostream": "cpp"
+        "ostream": "cpp",
+        "cstddef": "cpp"
     }
 }
