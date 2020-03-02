@@ -11,5 +11,5 @@ public:
 
 private:
     IDeckLink* deckLink;
-    IDeckLinkInput* deckLinkInput;
+    IDeckLinkInput* deckLinkInput = nullptr;
 };

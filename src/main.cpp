@@ -14,10 +14,10 @@ void intHandler(int) {
 int main() {
    signal(SIGINT, intHandler);
 
-   	std::cout << "Searching for DeckLink cards...\n";
+   	std::cout << "Searching for DeckLink cards..." << std::endl;
 	auto deckLink = GetFirstDeckLink();
 	if (deckLink == nullptr) {
-		std::cout << "Found no DeckLink cards... exiting.\n";
+		std::cout << "Found no DeckLink cards... exiting." << std::endl;
 		return 0;
 	}
 
