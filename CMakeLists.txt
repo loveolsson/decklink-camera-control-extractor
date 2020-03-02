@@ -5,6 +5,8 @@ project(DeckLinkCameraControl)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+target_link_libraries(DeckLinkCameraControl ${CMAKE_DL_LIBS})
+
 file(GLOB SOURCES
 	3rdParty/include/DeckLinkAPI.h
 	3rdParty/include/DeckLinkAPIDispatch.cpp
