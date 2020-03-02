@@ -14,8 +14,9 @@ void intHandler(int dummy) {
 int main() {
 	while (keepRunning) { 
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
-		std::cout << "Exiting...\n";
 	}
+
+	std::cout << "Exiting...\n";
 	
 	return 0;
 }
