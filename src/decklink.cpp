@@ -88,12 +88,12 @@ HRESULT
 DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, IDeckLinkAudioInputPacket *)
 {
     IDeckLinkVideoFrameAncillary* anc;
-    void ** ancData;
+    void * ancData;
 
     if (videoFrame->GetAncillaryData(&anc) == S_OK) {
         std::cout << "Anc" << std::endl;
 
-        if (anc->GetBufferForVerticalBlankingLine(16, (void**)&ancData) == S_OK) {
+        if (anc->GetBufferForVerticalBlankingLine(16, &ancData) == S_OK) {
             std::cout << "Line" << std::endl;
         }
 
