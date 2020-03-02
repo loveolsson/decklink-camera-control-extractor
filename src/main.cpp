@@ -27,7 +27,7 @@ int main() {
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 
-	std::cout << "Exiting...\n";
+	std::cout << std::endl << "Exiting..." << std::endl;
 	
 	return 0;
 }
