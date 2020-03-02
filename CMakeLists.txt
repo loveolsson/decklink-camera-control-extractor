@@ -20,4 +20,4 @@ include_directories(
 
 # add the executable
 add_executable(DeckLinkCameraControl ${SOURCES})
-target_link_libraries(DeckLinkCameraControl ${CMAKE_DL_LIBS})
+target_link_libraries(DeckLinkCameraControl pthread ${CMAKE_DL_LIBS})
