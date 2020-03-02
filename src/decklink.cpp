@@ -1,8 +1,5 @@
 #include "decklink.h"
 
-#include "include/DeckLinkAPIDispatch.cpp"
-
-
 IDeckLink *GetFirstDeckLink() {
     IDeckLink* deckLink = nullptr;
     

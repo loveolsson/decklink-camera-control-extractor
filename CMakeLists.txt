@@ -6,7 +6,8 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 file(GLOB SOURCES
-	3rdPary/include/DeckLinkAPI.h
+	3rdParty/include/DeckLinkAPI.h
+	3rdParty/include/DeckLinkAPIDispatch.cpp
 	src/main.cpp
 	src/decklink.h
 	src/decklink.cpp
