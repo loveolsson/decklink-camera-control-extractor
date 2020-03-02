@@ -9,6 +9,7 @@
         "tuple": "cpp",
         "typeinfo": "cpp",
         "ostream": "cpp",
-        "cstddef": "cpp"
+        "cstddef": "cpp",
+        "chrono": "cpp"
     }
 }

@@ -2,6 +2,7 @@
 #include "mutexfifo.h"
 #include "defines.h"
 #include "commands.h"
+#include "printpacket.h"
 
 #include <chrono>
 #include <thread>
@@ -39,13 +40,13 @@ int main()
 	{
 		if (fifo.Pop((uint8_t *)&pkt, sizeof(Header)) == 0)
 		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			std::this_thread::sleep_for(std::chrono::microseconds(100));
 			continue;
 		}
 
 		while (pkt.header.len > 0 && fifo.Pop((uint8_t *)&pkt.commandInfo, PADDING(pkt.header.len)) == 0)
 		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			std::this_thread::sleep_for(std::chrono::microseconds(100));
 		}
 
 		if (false)
@@ -55,31 +56,7 @@ int main()
 		}
 		else if (true || pkt.header.dest == 1)
 		{
-			if (pkt.header.len < sizeof(CommandInfo))
-			{
-				continue;
-			}
-
-			printf("Dest: %i, Len: %i, ", pkt.header.dest, pkt.header.len);
-
-			auto cmd = GetCommandFromData(&pkt.commandInfo);
-			if (cmd != nullptr)
-			{
-				printf("\"%s\", Hex: ", cmd->name);
-			}
-			else
-			{
-				printf("\"Unknown command %i, %i\", Hex:", pkt.commandInfo.category, pkt.commandInfo.parameter);
-			}
-
-			printf("Type: %s, ", pkt.commandInfo.type ? "assign" : "offset/toggle");
-
-			for (int i = 0; i < sizeof(Header) + pkt.header.len; ++i)
-			{
-				printf("%02x", ((uint8_t *)&pkt)[i]);
-			}
-
-			printf("\n");
+			PrintPacket(pkt);
 		}
 
 	}

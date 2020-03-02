@@ -13,6 +13,7 @@ file(GLOB SOURCES
 	src/decklink.h
 	src/decklink.cpp
 	src/commands.cpp
+	src/printpacket.cpp
 )
 
 include_directories(
