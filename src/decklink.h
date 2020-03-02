@@ -1,5 +1,5 @@
 
 
-class DeckLinkReceiver() {
-    
-}
+class DeckLinkReceiver {
+
+};

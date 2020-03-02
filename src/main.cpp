@@ -1,4 +1,4 @@
-#include "include/DeckLinkAPI.h"
+#include "decklink.h"
 
 #include <chrono>
 #include <thread>
