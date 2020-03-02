@@ -71,7 +71,7 @@ int main()
 			}
 			else
 			{
-				printf("\"Unknown command %i, %\", Hex:", pkt.commandInfo.category, pkt.commandInfo.parameter);
+				printf("\"Unknown command %i, %i\", Hex:", pkt.commandInfo.category, pkt.commandInfo.parameter);
 			}
 
 			printf("Type: %s, ", pkt.commandInfo.type ? "assign" : "offset/toggle");
