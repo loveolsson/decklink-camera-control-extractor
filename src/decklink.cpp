@@ -24,7 +24,19 @@ DeckLinkReceiver::DeckLinkReceiver(IDeckLink *_deckLink)
     {
         std::cout << "DeckLink card has input" << std::endl;
 
-        this->deckLinkInput->SetCallback(this);
+        if (this->deckLinkInput->SetCallback(this) != S_OK) {
+            std::cout << "Failed to set input callback." << std::endl;
+            return;
+        }
+
+        if (this->deckLinkInput->EnableVideoInput(bmdModeHD720p50, bmdFormat10BitYUV, bmdVideoInputEnableFormatDetection) != S_OK) {
+            std::cout << "Failed to enable video stream." << std::endl;
+            return;
+        }
+
+        if (this->deckLinkInput->StartStreams() != S_OK) {
+            std::cout << "Failed to start video stream." << std::endl;
+        }
     }
 }
 
@@ -32,6 +44,10 @@ DeckLinkReceiver::~DeckLinkReceiver()
 {
     if (this->deckLinkInput)
     {
+        std::cout << "Stopping input." << std::endl;
+        this->deckLinkInput->StopStreams();
+        this->deckLinkInput->FlushStreams();
+
         std::cout << "Releasing input." << std::endl;
         this->deckLinkInput->Release();
     }
@@ -56,7 +72,6 @@ DeckLinkReceiver::VideoInputFormatChanged(BMDVideoInputFormatChangedEvents notif
 {
     return S_OK;
 }
-
 
 HRESULT 
 DeckLinkReceiver::QueryInterface(REFIID, void**) {
