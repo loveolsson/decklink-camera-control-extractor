@@ -46,7 +46,7 @@ DeckLinkReceiver::DeckLinkReceiver(IDeckLink *_deckLink)
             return;
         }
 
-        if (this->deckLinkInput->EnableVideoInput(bmdModeNTSC, bmdFormat10BitYUV, bmdVideoInputEnableFormatDetection) != S_OK) {
+        if (this->deckLinkInput->EnableVideoInput(bmdModeNTSC, bmdFormat8BitYUV, bmdVideoInputEnableFormatDetection) != S_OK) {
             std::cout << "Failed to enable video stream." << std::endl;
             return;
         }
