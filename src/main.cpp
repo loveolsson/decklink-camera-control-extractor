@@ -1,4 +1,5 @@
 #include "decklink.h"
+#include "mutexfifo.h"
 
 #include <chrono>
 #include <thread>
@@ -14,6 +15,8 @@ void intHandler(int) {
 int main() {
 	signal(SIGINT, intHandler);
 
+	ByteFifo fifo;
+
 	auto threadId = std::this_thread::get_id();
    	std::cout << "ThreadId: " << threadId << std::endl;
    	std::cout << "Searching for DeckLink cards..." << std::endl;
@@ -23,7 +26,7 @@ int main() {
 		return 0;
 	}
 
-	DeckLinkReceiver receiver(deckLink);
+	DeckLinkReceiver receiver(deckLink, &fifo);
 
 	while (keepRunning) { 
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));

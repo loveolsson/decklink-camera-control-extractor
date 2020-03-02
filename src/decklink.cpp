@@ -5,19 +5,6 @@
 #include <string>
 #include <sstream>
 
-#define MAX_WIDTH_VANC 1920
-
-static void unpack_v210(uint16_t *dst, const uint8_t *src, int width)
-{
-    int i;
-    for (i = 0; i < width * 2 / 3; i++)
-    {
-        *dst++ = src[0] + ((src[1] & 3) << 8);
-        *dst++ = (src[1] >> 2) + ((src[2] & 15) << 6);
-        *dst++ = (src[2] >> 4) + ((src[3] & 63) << 4);
-        src += 4;
-    }
-}
 
 std::string ToHex(const uint8_t *buffer, size_t size)
 {
@@ -54,8 +41,9 @@ IDeckLink *GetFirstDeckLink()
     return deckLink;
 }
 
-DeckLinkReceiver::DeckLinkReceiver(IDeckLink *_deckLink)
+DeckLinkReceiver::DeckLinkReceiver(IDeckLink *_deckLink, ByteFifo *_fifo)
     : deckLink(_deckLink)
+    , fifo(_fifo)
 {
     IDeckLinkProfileAttributes *attr;
 
@@ -139,9 +127,6 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
         const uint8_t *data;
         uint32_t size;
 
-        uint16_t vanc[MAX_WIDTH_VANC];
-        size_t vanc_size = videoFrame->GetWidth();
-
         if (packets->GetFirstPacketByID('Q', 'R', &packet) == S_OK)
         {
             if (packet->GetBytes(bmdAncillaryPacketFormatUInt8, (const void **)&data, &size) == S_OK)
@@ -152,14 +137,15 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
             packet->Release();
         }
 
-        // if (packets->GetFirstPacketByID('Q', 'S', &packet) == S_OK)
-        // {
-        //     if (packet->GetBytes(bmdAncillaryPacketFormatUInt8, (const void **)&data, &size) == S_OK)
-        //     {
-        //         std::cout << "QS Len: " << size << " " << ToHex(data, size) << std::endl;
-        //     }
-        //     packet->Release();
-        // }
+        if (packets->GetFirstPacketByID('Q', 'S', &packet) == S_OK)
+        {
+            if (packet->GetBytes(bmdAncillaryPacketFormatUInt8, (const void **)&data, &size) == S_OK)
+            {
+                this->fifo->Push(data, size);
+            }
+            
+            packet->Release();
+        }
 
         packets->Release();
     }
