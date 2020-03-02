@@ -1,11 +1,12 @@
 #include "decklink.h"
-#include "include/DeckLinkAPI.h"
+
+#include "include/DeckLinkAPIDispatch.cpp"
 
 
 IDeckLink *GetFirstDeckLink() {
     IDeckLink* deckLink = nullptr;
     
-    IDeckLinkIterator *deckLinkIterator = CreateDeckLinkIteratorInstances();
+    IDeckLinkIterator *deckLinkIterator = CreateDeckLinkIteratorInstance();
 
     if (deckLinkIterator->Next(&deckLink) != S_OK) {
         deckLink = nullptr;
