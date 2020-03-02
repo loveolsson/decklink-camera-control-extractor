@@ -30,7 +30,7 @@ void PrintPacket(Packet &pkt)
         std::cout << "offset/toggle ";
     }
 
-    std::cout << ToHex((uint8_t *)&pkt, sizeof(Header) + pkt.header.len) << std::endl;
+    std::cout << "Hex:" << ToHex((uint8_t *)&pkt, sizeof(Header) + pkt.header.len) << std::endl;
 }
 
 std::string ToHex(const uint8_t *buffer, size_t size)
