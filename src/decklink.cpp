@@ -53,6 +53,11 @@ DeckLinkReceiver::DeckLinkReceiver(IDeckLink *_deckLink)
             return;
         }
 
+        if (this->deckLinkInput->EnableAudioInput(bmdAudioSampleRate48kHz, bmdAudioSampleType16bitInteger, 2) != S_OK) {
+            std::cout << "Failed to enable audio stream." << std::endl;
+            return;
+        }
+
         if (this->deckLinkInput->StartStreams() != S_OK) {
             std::cout << "Failed to start video stream." << std::endl;
         }
