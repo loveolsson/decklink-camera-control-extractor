@@ -23,8 +23,6 @@ int main()
 
 	ByteFifo fifo;
 
-	auto threadId = std::this_thread::get_id();
-	std::cout << "ThreadId: " << threadId << std::endl;
 	std::cout << "Searching for DeckLink cards..." << std::endl;
 	auto deckLink = GetFirstDeckLink();
 	if (deckLink == nullptr)

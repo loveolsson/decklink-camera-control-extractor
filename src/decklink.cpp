@@ -1,6 +1,5 @@
 #include "decklink.h"
 #include <iostream>
-#include <thread>
 #include <iomanip>
 #include <string>
 #include <sstream>
@@ -119,9 +118,6 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
     IDeckLinkVideoFrameAncillaryPackets *packets;
     IDeckLinkAncillaryPacket *packet;
 
-    //auto threadId = std::this_thread::get_id();
-    //std::cout << "Frame threadId: " << threadId << std::endl;
-
     if (videoFrame->QueryInterface(IID_IDeckLinkVideoFrameAncillaryPackets, (void **)&packets) == S_OK)
     {
         const uint8_t *data;
@@ -158,9 +154,6 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
 HRESULT
 DeckLinkReceiver::VideoInputFormatChanged(BMDVideoInputFormatChangedEvents notificationEvents, IDeckLinkDisplayMode *newDisplayMode, BMDDetectedVideoInputFormatFlags detectedSignalFlags)
 {
-    auto threadId = std::this_thread::get_id();
-    std::cout << "VideoInputFormatChanged threadId: " << threadId << std::endl;
-
     if (newDisplayMode)
     {
         const char *name;
