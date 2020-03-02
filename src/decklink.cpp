@@ -3,6 +3,19 @@
 #include <thread>
 #include <iomanip>
 
+#define MAX_WIDTH_VANC 1920
+
+static void unpack_v210(uint16_t *dst, const uint8_t *src, int width)
+{
+    int i;
+    for (i = 0; i < width * 2 / 3; i++) {
+        *dst++ =  src[0]       + ((src[1] & 3)  << 8);
+        *dst++ = (src[1] >> 2) + ((src[2] & 15) << 6);
+        *dst++ = (src[2] >> 4) + ((src[3] & 63) << 4);
+        src += 4;
+    }
+}
+
 IDeckLink *GetFirstDeckLink()
 {
     IDeckLink *deckLink = nullptr;
@@ -98,31 +111,34 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
     if (videoFrame->QueryInterface(IID_IDeckLinkVideoFrameAncillaryPackets, (void **)&packets) == S_OK) {
         const uint8_t* data;
         uint32_t size;
+    
+        uint16_t vanc[MAX_WIDTH_VANC];
+        size_t vanc_size = videoFrame->GetWidth();
 
-        if (packets->GetFirstPacketByID('Q', 'R', &packet) == S_OK) {
-            if (packet->GetBytes(bmdAncillaryPacketFormatYCbCr10, (const void **)&data, &size) == S_OK) {
-                std::cout << "QR Len: " << size << " " << std::dec;
-                for (int i = 0; i < size; ++i) {
-                    std::cout << std::hex << std::setfill('0') << std::setw(2) << data[i];
-                }
-
-                std::cout << std::endl;
-            }
-
-            packet->Release();
-        }
-
-        // if (packets->GetFirstPacketByID('Q', 'S', &packet) == S_OK) {
-        //      if (packet->GetBytes(bmdAncillaryPacketFormatYCbCr10, (const void **)&data, &size) == S_OK) {
-        //         std::cout << "QS Len: " << size << " "  << std::dec ;
+        // if (packets->GetFirstPacketByID('Q', 'R', &packet) == S_OK) {
+        //     if (packet->GetBytes(bmdAncillaryPacketFormatYCbCr10, (const void **)&data, &size) == S_OK) {
+        //         std::cout << "QR Len: " << size << " " << std::dec;
         //         for (int i = 0; i < size; ++i) {
         //             std::cout << std::hex << std::setfill('0') << std::setw(2) << data[i];
         //         }
 
         //         std::cout << std::endl;
         //     }
+
         //     packet->Release();
         // }
+
+        if (packets->GetFirstPacketByID('Q', 'S', &packet) == S_OK) {
+             if (packet->GetBytes(bmdAncillaryPacketFormatYCbCr10, (const void **)&data, &size) == S_OK) {
+                std::cout << "QS Len: " << size << " "  << std::dec ;
+                for (int i = 0; i < size; ++i) {
+                    std::cout << std::hex << std::setfill('0') << std::setw(2) << data[i];
+                }
+
+                std::cout << std::endl;
+            }
+            packet->Release();
+        }
 
         packets->Release();
     }
