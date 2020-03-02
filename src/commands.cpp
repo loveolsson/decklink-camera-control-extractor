@@ -1,6 +1,11 @@
 #include "commands.h"
 #include <cstddef>
 
+struct CommandGroup {
+  const Command* commands;
+  const int commandCount;
+};
+
 static const Command lensCommands[] = {
   {"Focus"},
   {"Instantaneous autofocus"},
