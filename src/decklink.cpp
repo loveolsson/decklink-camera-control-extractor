@@ -152,14 +152,14 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
             packet->Release();
         }
 
-        if (packets->GetFirstPacketByID('Q', 'S', &packet) == S_OK)
-        {
-            if (packet->GetBytes(bmdAncillaryPacketFormatUInt8, (const void **)&data, &size) == S_OK)
-            {
-                std::cout << "QS Len: " << size << " " << ToHex(data, size) << std::endl;
-            }
-            packet->Release();
-        }
+        // if (packets->GetFirstPacketByID('Q', 'S', &packet) == S_OK)
+        // {
+        //     if (packet->GetBytes(bmdAncillaryPacketFormatUInt8, (const void **)&data, &size) == S_OK)
+        //     {
+        //         std::cout << "QS Len: " << size << " " << ToHex(data, size) << std::endl;
+        //     }
+        //     packet->Release();
+        // }
 
         packets->Release();
     }
