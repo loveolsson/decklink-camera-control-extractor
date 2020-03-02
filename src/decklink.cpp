@@ -66,6 +66,8 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
     IDeckLinkAncillaryPacketIterator* iterator;
     IDeckLinkAncillaryPacket *packet;
 
+    std::cout << "-";
+
     if (videoFrame->QueryInterface(IID_IDeckLinkVideoFrameAncillaryPackets, (void **)&packets) == S_OK) {
         if (packets->GetPacketIterator(&iterator) == S_OK) {
             while (iterator->Next(&packet) == S_OK) {
