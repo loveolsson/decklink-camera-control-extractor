@@ -1,0 +1,12 @@
+{
+    "files.associations": {
+        "__mutex_base": "cpp",
+        "__threading_support": "cpp",
+        "functional": "cpp",
+        "memory": "cpp",
+        "new": "cpp",
+        "thread": "cpp",
+        "tuple": "cpp",
+        "typeinfo": "cpp"
+    }
+}

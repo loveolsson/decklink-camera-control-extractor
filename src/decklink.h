@@ -4,7 +4,7 @@
 
 IDeckLink *GetFirstDeckLink();
 
-class DeckLinkReceiver {
+class DeckLinkReceiver : public IDeckLinkInputCallback {
 public:
     DeckLinkReceiver(IDeckLink *_deckLink);
     ~DeckLinkReceiver();
