@@ -12,8 +12,10 @@ void intHandler(int) {
 }
 
 int main() {
-   signal(SIGINT, intHandler);
+	signal(SIGINT, intHandler);
 
+	auto threadId = std::this_thread::get_id();
+   	std::cout << "ThreadId: " << threadId << std::endl;
    	std::cout << "Searching for DeckLink cards..." << std::endl;
 	auto deckLink = GetFirstDeckLink();
 	if (deckLink == nullptr) {
@@ -24,7 +26,7 @@ int main() {
 	DeckLinkReceiver receiver(deckLink);
 
 	while (keepRunning) { 
-		std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
 
 	std::cout << std::endl << "Exiting..." << std::endl;

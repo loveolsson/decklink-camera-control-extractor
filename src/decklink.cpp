@@ -1,5 +1,6 @@
 #include "decklink.h"
 #include <iostream>
+#include <thread>
 
 IDeckLink *GetFirstDeckLink()
 {
@@ -90,7 +91,8 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
     IDeckLinkAncillaryPacketIterator* iterator;
     IDeckLinkAncillaryPacket *packet;
 
-    std::cout << "-";
+	auto threadId = std::this_thread::get_id();
+   	std::cout << "Frame threadId: " << threadId << std::endl;
 
     if (videoFrame->QueryInterface(IID_IDeckLinkVideoFrameAncillaryPackets, (void **)&packets) == S_OK) {
             std::cout << "p";
