@@ -96,21 +96,17 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
    	//std::cout << "Frame threadId: " << threadId << std::endl;
 
     if (videoFrame->QueryInterface(IID_IDeckLinkVideoFrameAncillaryPackets, (void **)&packets) == S_OK) {
-        std::cout << "p";
 
-        if (packets->GetPacketIterator(&iterator) == S_OK) {
-                std::cout << "i";
+        if (packets->GetFirstPacketByID('Q', 'R', &packet) == S_OK) {
+            std::cout << "QR" << std::endl;
 
-            while (iterator->Next(&packet) == S_OK) {
-                uint32_t lineNum = packet->GetLineNumber();
-                uint8_t did = packet->GetDID();
-                uint8_t sdid = packet->GetSDID();
-                std::cout << "Line num: " << lineNum << ", DID: " << did << ", SDID: " << sdid << std::endl;
-                
-                packet->Release();
-            }
+            packet->Release();
+        }
 
-            iterator->Release();
+        if (packets->GetFirstPacketByID('Q', 'S', &packet) == S_OK) {
+            std::cout << "QS" << std::endl;
+
+            packet->Release();
         }
 
         packets->Release();
