@@ -1,6 +1,7 @@
 #include "decklink.h"
 #include <iostream>
 #include <thread>
+#include <iomanip>
 
 IDeckLink *GetFirstDeckLink()
 {
@@ -102,7 +103,7 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
             if (packet->GetBytes(bmdAncillaryPacketFormatUInt8, (const void **)&data, &size) == S_OK) {
                 std::cout << "QR Len: " << size << " ";
                 for (int i = 0; i < size; ++i) {
-                    std::cout << std::hex << data[i];
+                    std::cout << std::hex << std::setfill('0') << std::setw(2) << data[i];
                 }
 
                 std::cout << std::endl;
