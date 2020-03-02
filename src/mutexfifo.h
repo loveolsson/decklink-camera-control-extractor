@@ -1,6 +1,7 @@
 #pragma once
 #include <cstring>
 #include <mutex>
+#include <algorithm>
 
 template<typename T, size_t S>
 class MutexFifo {
@@ -15,7 +16,7 @@ class MutexFifo {
 
       while (itemsLeft > 0) {
         size_t leftBeforeWrap = S - this->writeHead;
-        size_t itemsToWrite = min(itemsLeft, leftBeforeWrap);
+        size_t itemsToWrite = std::min(itemsLeft, leftBeforeWrap);
 
         //printf("itemsToPush: %i WriteHead: %i, S: %i\n", itemsToWrite, this->writeHead);
 
@@ -42,7 +43,7 @@ class MutexFifo {
 
       while (itemsLeft > 0) {
         size_t leftBeforeWrap = S - this->readHead;
-        size_t itemsToRead = min(itemsLeft, leftBeforeWrap);
+        size_t itemsToRead = std::min(itemsLeft, leftBeforeWrap);
 
         //printf("itemsToPop: %i ReadHead: %i\n", itemsToRead, this->readHead);
 
@@ -70,7 +71,7 @@ class MutexFifo {
 
       while (itemsLeft > 0) {
         size_t leftBeforeWrap = S - tempReadHead;
-        size_t itemsToRead = min(itemsLeft, leftBeforeWrap);
+        size_t itemsToRead = std::min(itemsLeft, leftBeforeWrap);
 
         //printf("itemsToPeek: %i, ReadHead: %i\n", itemsToRead, tempReadHead);
 
