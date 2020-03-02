@@ -12,26 +12,25 @@ void PrintPacket(Packet &pkt)
         return;
     }
 
-    printf("Dest: %i, Len: %i, ", pkt.header.dest, pkt.header.len);
+    std::cout << "Dest: " << pkt.header.dest << ", Len: " << pkt.header.len;
 
     auto cmd = GetCommandFromData(&pkt.commandInfo);
     if (cmd != nullptr)
     {
-        printf("\"%s\", Hex: ", cmd->name);
+        std::cout << "\"" << cmd->name << "\", Type: ";
     }
     else
     {
-        printf("\"Unknown command %i, %i\", Hex:", pkt.commandInfo.category, pkt.commandInfo.parameter);
+        std::cout << "\"Unknown command " << pkt.commandInfo.category << ", " << pkt.commandInfo.parameter << """, Type: ";
     }
 
-    printf("Type: %s, ", pkt.commandInfo.type ? "assign" : "offset/toggle");
-
-    for (int i = 0; i < sizeof(Header) + pkt.header.len; ++i)
-    {
-        printf("%02x", ((uint8_t *)&pkt)[i]);
+    if (pkt.commandInfo.type) {
+        std::cout << "assign ";
+    } else {
+        std::cout << "offset/toggle ";
     }
 
-    printf("\n");
+    std::cout << ToHex((uint8_t *)&pkt, sizeof(Header) + pkt.header.len) << std::endl;
 }
 
 std::string ToHex(const uint8_t *buffer, size_t size)
