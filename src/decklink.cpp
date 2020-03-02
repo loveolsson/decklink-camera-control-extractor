@@ -136,8 +136,10 @@ DeckLinkReceiver::VideoInputFormatChanged(BMDVideoInputFormatChangedEvents notif
     }
 
     BMDPixelFormat format = requires10bit ? bmdFormat10BitYUV : bmdFormat8BitYUV;
+    this->deckLinkInput->StopStreams();
     this->deckLinkInput->DisableVideoInput();
     this->deckLinkInput->EnableVideoInput(newDisplayMode->GetDisplayMode(), format, bmdVideoInputEnableFormatDetection);
+    this->deckLinkInput->StartStreams();
 
     return S_OK;
 }
