@@ -24,7 +24,7 @@ int main() {
 	DeckLinkReceiver receiver(deckLink);
 
 	while (keepRunning) { 
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	}
 
 	std::cout << std::endl << "Exiting..." << std::endl;
