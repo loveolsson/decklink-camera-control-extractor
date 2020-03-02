@@ -88,19 +88,34 @@ HRESULT
 DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, IDeckLinkAudioInputPacket *)
 {
     IDeckLinkVideoFrameAncillary* anc;
-    void * ancData;
 
-    if (videoFrame->GetAncillaryData(&anc) == S_OK) {
-        std::cout << "Anc" << anc->GetDisplayMode() << std::endl;
-        
+    IDeckLinkVideoFrameAncillaryPackets* packets;
+    IDeckLinkAncillaryPacketIterator* iterator;
+    IDeckLinkAncillaryPacket *packet;
 
-        if (anc->GetBufferForVerticalBlankingLine(4, &ancData) == S_OK) {
-            std::cout << "Line" << std::endl;
+	//auto threadId = std::this_thread::get_id();
+   	//std::cout << "Frame threadId: " << threadId << std::endl;
+
+    if (videoFrame->QueryInterface(IID_IDeckLinkVideoFrameAncillaryPackets, (void **)&packets) == S_OK) {
+        std::cout << "p";
+
+        if (packets->GetPacketIterator(&iterator) == S_OK) {
+                std::cout << "i";
+
+            while (iterator->Next(&packet) == S_OK) {
+                uint32_t lineNum = packet->GetLineNumber();
+                uint8_t did = packet->GetDID();
+                uint8_t sdid = packet->GetSDID();
+                std::cout << "Line num: " << lineNum << ", DID: " << did << ", SDID: " << sdid << std::endl;
+                
+                packet->Release();
+            }
+
+            iterator->Release();
         }
 
-        anc->Release();
+        packets->Release();
     }
-
 
     std::cout << std::flush;
 
