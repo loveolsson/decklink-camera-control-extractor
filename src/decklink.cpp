@@ -89,22 +89,27 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
     IDeckLinkVideoFrameAncillary* anc;
 
     IDeckLinkVideoFrameAncillaryPackets* packets;
-    IDeckLinkAncillaryPacketIterator* iterator;
     IDeckLinkAncillaryPacket *packet;
 
 	//auto threadId = std::this_thread::get_id();
    	//std::cout << "Frame threadId: " << threadId << std::endl;
 
     if (videoFrame->QueryInterface(IID_IDeckLinkVideoFrameAncillaryPackets, (void **)&packets) == S_OK) {
+        const uint8_t* data;
+        uint32_t size;
 
         if (packets->GetFirstPacketByID('Q', 'R', &packet) == S_OK) {
-            std::cout << "QR" << std::endl;
+            packet->GetBytes(bmdAncillaryPacketFormatUInt8, (const void **)&data, &size);
+
+            std::cout << "QR Len: " << size << std::endl;
 
             packet->Release();
         }
 
         if (packets->GetFirstPacketByID('Q', 'S', &packet) == S_OK) {
-            std::cout << "QS" << std::endl;
+            packet->GetBytes(bmdAncillaryPacketFormatUInt8, (const void **)&data, &size);
+
+            std::cout << "QS Len: " << size << std::endl;
 
             packet->Release();
         }
