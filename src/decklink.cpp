@@ -49,7 +49,7 @@ DeckLinkReceiver::DeckLinkReceiver(IDeckLink *_deckLink)
 
         BMDPixelFormat format = requires10bit ? bmdFormat10BitYUV : bmdFormat8BitYUV;
 
-        if (this->deckLinkInput->EnableVideoInput(bmdModeHD1080p5994, format, bmdVideoInputEnableFormatDetection) != S_OK) {
+        if (this->deckLinkInput->EnableVideoInput(bmdModeHD720p5994, format, bmdVideoInputEnableFormatDetection) != S_OK) {
             std::cout << "Failed to enable video stream." << std::endl;
             return;
         }
