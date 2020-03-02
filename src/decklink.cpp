@@ -57,3 +57,19 @@ DeckLinkReceiver::VideoInputFormatChanged(BMDVideoInputFormatChangedEvents notif
     return S_OK;
 }
 
+
+HRESULT 
+DeckLinkReceiver::QueryInterface(REFIID, void**) {
+    return S_FALSE;    
+}
+
+ULONG 
+DeckLinkReceiver::AddRef() {
+    return 0;
+}
+
+ULONG 
+DeckLinkReceiver::Release() 
+{
+    return 0;
+}

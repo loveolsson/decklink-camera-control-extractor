@@ -12,8 +12,9 @@ public:
     HRESULT VideoInputFrameArrived (IDeckLinkVideoInputFrame *videoFrame, IDeckLinkAudioInputPacket *audioPacket);
     HRESULT VideoInputFormatChanged (BMDVideoInputFormatChangedEvents notificationEvents, IDeckLinkDisplayMode *newDisplayMode, BMDDetectedVideoInputFormatFlags detectedSignalFlags);
 
-
-    virtual HRESULT QueryInterface(REFIID, void**) = 0;
+    virtual HRESULT QueryInterface(REFIID, void**) final;
+    virtual ULONG AddRef() final;
+    virtual ULONG Release() final;
 
 private:
     IDeckLink* deckLink;
