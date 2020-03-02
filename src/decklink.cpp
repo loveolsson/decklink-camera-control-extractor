@@ -101,7 +101,7 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
 
         if (packets->GetFirstPacketByID('Q', 'R', &packet) == S_OK) {
             if (packet->GetBytes(bmdAncillaryPacketFormatUInt8, (const void **)&data, &size) == S_OK) {
-                std::cout << "QR Len: " << size << " ";
+                std::cout << "QR Len: " << size << " " << std::dec;
                 for (int i = 0; i < size; ++i) {
                     std::cout << std::hex << std::setfill('0') << std::setw(2) << data[i];
                 }
@@ -113,10 +113,14 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
         }
 
         if (packets->GetFirstPacketByID('Q', 'S', &packet) == S_OK) {
-            if (packet->GetBytes(bmdAncillaryPacketFormatUInt8, (const void **)&data, &size) == S_OK) {
-                std::cout << "QS Len: " << size << std::endl;
+             if (packet->GetBytes(bmdAncillaryPacketFormatUInt8, (const void **)&data, &size) == S_OK) {
+                std::cout << "QS Len: " << size << " "  << std::dec ;
+                for (int i = 0; i < size; ++i) {
+                    std::cout << std::hex << std::setfill('0') << std::setw(2) << data[i];
+                }
+
+                std::cout << std::endl;
             }
-    
             packet->Release();
         }
 
