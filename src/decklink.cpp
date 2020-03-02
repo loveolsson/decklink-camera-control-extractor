@@ -64,7 +64,13 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
 {
     IDeckLinkVideoFrameAncillaryPackets* packets;
     if (videoFrame->QueryInterface(IID_IDeckLinkVideoFrameAncillaryPackets, (void **)&packets) == S_OK) {
-
+        IDeckLinkAncillaryPacket *packet;
+        if (packets->GetFirstPacketByID(51, 53, &packet) == S_OK) {
+            uint32_t lineNum;
+            packet->GetLineNumber(&lineNum);
+            std::cout << "Line num" << lineNum << std::endl;
+            packet->Release();
+        }
 
         packets->Release();
     }
