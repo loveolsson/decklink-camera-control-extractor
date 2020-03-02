@@ -121,6 +121,9 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
 HRESULT
 DeckLinkReceiver::VideoInputFormatChanged(BMDVideoInputFormatChangedEvents notificationEvents, IDeckLinkDisplayMode *newDisplayMode, BMDDetectedVideoInputFormatFlags detectedSignalFlags)
 {
+	auto threadId = std::this_thread::get_id();
+   	std::cout << "VideoInputFormatChanged threadId: " << threadId << std::endl;
+
     if (newDisplayMode) {
         const char* name;
 
