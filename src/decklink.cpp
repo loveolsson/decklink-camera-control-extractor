@@ -5,7 +5,7 @@
 IDeckLink *GetFirstDeckLink() {
     IDeckLink* deckLink = nullptr;
     
-    IDeckLinkIterator *deckLinkIterator = CreateDeckLinkIteratorInstance();
+    IDeckLinkIterator *deckLinkIterator = CreateDeckLinkIteratorInstances();
 
     if (deckLinkIterator->Next(&deckLink) != S_OK) {
         deckLink = nullptr;
