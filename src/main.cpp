@@ -7,11 +7,13 @@
 
 static volatile int keepRunning = 1;
 
-void intHandler(int dummy) {
+void intHandler(int) {
     keepRunning = 0;
 }
 
 int main() {
+   signal(SIGINT, intHandler);
+
 	while (keepRunning) { 
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
