@@ -12,7 +12,6 @@
 static volatile int keepRunning = 1;
 static const uint8_t leadIn[] = {0, 0, 0};
 
-
 void intHandler(int)
 {
 	keepRunning = 0;
@@ -34,7 +33,6 @@ int main()
 
 	DeckLinkReceiver receiver(deckLink, &fifo);
 	Packet pkt;
-
 
 	while (keepRunning)
 	{
@@ -58,7 +56,6 @@ int main()
 		{
 			PrintPacket(pkt);
 		}
-
 	}
 
 	std::cout << std::endl

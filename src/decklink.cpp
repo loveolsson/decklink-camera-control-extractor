@@ -1,28 +1,5 @@
 #include "decklink.h"
 #include <iostream>
-#include <iomanip>
-#include <string>
-#include <sstream>
-
-
-std::string ToHex(const uint8_t *buffer, size_t size)
-{
-    std::stringstream str;
-    str.setf(std::ios_base::hex, std::ios::basefield);
-    //str.unsetf(std::ios::showbase);
-    //str.setf(std::ios::showbase);
-    str.setf(std::ios_base::uppercase);
-    str.fill('0');
-    //str.width(2);
-
-    for (size_t i = 0; i < size; ++i)
-    {
-        //str << std::hex << std::setw(2) << (unsigned short)(unsigned char)buffer[i];
-        //str << (unsigned short)(unsigned char)buffer[i];
-        str << std::setw(2) << (unsigned short)(uint8_t)buffer[i];
-    }
-    return str.str();
-}
 
 IDeckLink *GetFirstDeckLink()
 {
@@ -78,11 +55,6 @@ DeckLinkReceiver::DeckLinkReceiver(IDeckLink *_deckLink, ByteFifo *_fifo)
             std::cout << "Failed to enable video stream." << std::endl;
             return;
         }
-
-        // if (this->deckLinkInput->EnableAudioInput(bmdAudioSampleRate48kHz, bmdAudioSampleType16bitInteger, 2) != S_OK) {
-        //     std::cout << "Failed to enable audio stream." << std::endl;
-        //     return;
-        // }
 
         if (this->deckLinkInput->StartStreams() != S_OK)
         {

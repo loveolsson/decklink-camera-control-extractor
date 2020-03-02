@@ -2,6 +2,8 @@
 #include "commands.h"
 
 #include <iostream>
+#include <sstream>
+#include <iomanip>
 
 void PrintPacket(Packet &pkt)
 {
@@ -30,4 +32,18 @@ void PrintPacket(Packet &pkt)
     }
 
     printf("\n");
+}
+
+std::string ToHex(const uint8_t *buffer, size_t size)
+{
+    std::stringstream str;
+    str.setf(std::ios_base::hex, std::ios::basefield);
+    str.setf(std::ios_base::uppercase);
+    str.fill('0');
+
+    for (size_t i = 0; i < size; ++i)
+    {
+        str << std::setw(2) << (unsigned short)(uint8_t)buffer[i];
+    }
+    return str.str();
 }
