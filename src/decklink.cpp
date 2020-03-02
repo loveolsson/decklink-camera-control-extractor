@@ -2,6 +2,8 @@
 #include <iostream>
 #include <thread>
 #include <iomanip>
+#include <string>
+#include <sstream>
 
 #define MAX_WIDTH_VANC 1920
 
@@ -14,6 +16,23 @@ static void unpack_v210(uint16_t *dst, const uint8_t *src, int width)
         *dst++ = (src[2] >> 4) + ((src[3] & 63) << 4);
         src += 4;
     }
+}
+
+std::string ToHex(const uint8_t* buffer, size_t size){
+	std::stringstream str;
+	str.setf(std::ios_base::hex, std::ios::basefield);
+	//str.unsetf(std::ios::showbase);
+	//str.setf(std::ios::showbase);
+	str.setf(std::ios_base::uppercase);
+	str.fill('0');
+	//str.width(2);
+	
+	for(size_t i=0; i<size; ++i){
+		//str << std::hex << std::setw(2) << (unsigned short)(unsigned char)buffer[i];
+		//str << (unsigned short)(unsigned char)buffer[i];
+		str << std::setw(2) << (unsigned short)(uint8_t)buffer[i];
+	}
+	return str.str();
 }
 
 IDeckLink *GetFirstDeckLink()
@@ -130,12 +149,7 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
 
         if (packets->GetFirstPacketByID('Q', 'S', &packet) == S_OK) {
              if (packet->GetBytes(bmdAncillaryPacketFormatYCbCr10, (const void **)&data, &size) == S_OK) {
-                std::cout << "QS Len: " << size << " "  << std::dec ;
-                for (int i = 0; i < size; ++i) {
-                    std::cout << std::hex << std::setfill('0') << std::setw(2) << data[i];
-                }
-
-                std::cout << std::endl;
+                std::cout << "QS Len: " << size << " " << ToHex(data, size) << std::endl;
             }
             packet->Release();
         }
