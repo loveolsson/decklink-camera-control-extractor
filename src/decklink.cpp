@@ -100,7 +100,7 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
 
         if (packets->GetFirstPacketByID('Q', 'R', &packet) == S_OK) {
             if (packet->GetBytes(bmdAncillaryPacketFormatUInt8, (const void **)&data, &size) == S_OK) {
-                std::cout << "QR Len: " << size;
+                std::cout << "QR Len: " << size << " ";
                 for (int i = 0; i < size; ++i) {
                     std::cout << std::hex << data[i];
                 }
