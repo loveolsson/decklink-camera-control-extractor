@@ -5,10 +5,6 @@ project(DeckLinkCameraControl)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-file(GLOB INCLUDES
-	3rdPary/
-)
-
 file(GLOB SOURCES
 	src/main.cpp
 	src/decklink.h
@@ -17,7 +13,9 @@ file(GLOB SOURCES
 	3rdPary/include/DeckLinkAPIDispatch.cpp
 )
 
-include_directories(${INCLUDES})
+include_directories(
+	3rdParty/
+)
 
 # add the executable
 add_executable(DeckLinkCameraControl ${SOURCES})
