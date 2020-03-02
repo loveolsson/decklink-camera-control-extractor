@@ -131,7 +131,7 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
         {
             if (packet->GetBytes(bmdAncillaryPacketFormatUInt8, (const void **)&data, &size) == S_OK)
             {
-                std::cout << "QS Len: " << size << " " << ToHex(data, size) << std::endl;
+                //std::cout << "QS Len: " << size << " " << ToHex(data, size) << std::endl;
             }
 
             packet->Release();
@@ -143,7 +143,7 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
             {
                 this->fifo->Push(data, size);
             }
-            
+
             packet->Release();
         }
 
