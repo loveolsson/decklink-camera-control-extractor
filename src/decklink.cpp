@@ -62,7 +62,11 @@ DeckLinkReceiver::~DeckLinkReceiver()
 HRESULT
 DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, IDeckLinkAudioInputPacket *)
 {
-    std::cout << "-";
+    IDeckLinkVideoFrameAncillary* packets;
+    if (videoFrame->GetAncillaryData(&packets) == S_OK) {
+
+        packets->Release();
+    }
 
     return S_OK;
 }
