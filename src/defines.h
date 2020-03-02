@@ -4,7 +4,7 @@
 #define NUM(a) (sizeof(a) / sizeof(*a))
 #define PADDING(x) (((x + 3) / 4) * 4)
 
-#pragma pack(1);
+#pragma pack(1)
 struct Header {
   uint8_t dest;
   uint8_t len;
