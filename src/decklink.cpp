@@ -115,6 +115,8 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
         packets->Release();
     }
 
+    std::cout << std::flush;
+
     return S_OK;
 }
 
