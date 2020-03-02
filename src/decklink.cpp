@@ -90,8 +90,6 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
     IDeckLinkVideoFrameAncillary* anc;
     void * ancData;
 
-    BMDDisplayMode
-
     if (videoFrame->GetAncillaryData(&anc) == S_OK) {
         std::cout << "Anc" << anc->GetDisplayMode() << std::endl;
         
