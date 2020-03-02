@@ -1,4 +1,5 @@
 #pragma once
+#include <cstring>
 #include <mutex>
 
 template<typename T, size_t S>
