@@ -113,6 +113,8 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
         packets->Release();
     }
 
+    videoFrame->Release();
+
     return S_OK;
 }
 
