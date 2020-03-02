@@ -1272,7 +1272,7 @@ protected:
 
 /* Functions */
 
-extern "C" {
+//extern "C" {
 
     IDeckLinkIterator* BMD_PUBLIC CreateDeckLinkIteratorInstance(void);
     IDeckLinkDiscovery* BMD_PUBLIC CreateDeckLinkDiscoveryInstance(void);
@@ -1281,7 +1281,7 @@ extern "C" {
     IDeckLinkVideoConversion* BMD_PUBLIC CreateVideoConversionInstance(void);
     IDeckLinkVideoFrameAncillaryPackets* BMD_PUBLIC CreateVideoFrameAncillaryPacketsInstance(void);	// For use when creating a custom IDeckLinkVideoFrame without wrapping IDeckLinkOutput::CreateVideoFrame
 
-}
+//}
 
 #endif /* defined(__cplusplus) */
 #endif /* defined(BMD_DECKLINKAPI_H) */
