@@ -11,6 +11,8 @@ file(GLOB INCLUDES
 
 file(GLOB SOURCES
 	src/main.cpp
+	src/decklink.h
+	src/decklink.cpp
 	3rdPary/include/DeckLinkAPI.h
 	3rdPary/include/DeckLinkAPIDispatch.cpp
 )
@@ -19,5 +21,3 @@ include_directories(${INCLUDES})
 
 # add the executable
 add_executable(DeckLinkCameraControl ${SOURCES})
-
-
