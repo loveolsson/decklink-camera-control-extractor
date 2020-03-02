@@ -12,7 +12,7 @@ void PrintPacket(Packet &pkt)
         return;
     }
 
-    std::cout << "Dest: " << pkt.header.dest << ", Len: " << pkt.header.len;
+    std::cout << "Dest: " << (int)pkt.header.dest << ", Len: " << (int)pkt.header.len;
 
     auto cmd = GetCommandFromData(&pkt.commandInfo);
     if (cmd != nullptr)
