@@ -62,8 +62,9 @@ DeckLinkReceiver::~DeckLinkReceiver()
 HRESULT
 DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, IDeckLinkAudioInputPacket *)
 {
-    IDeckLinkVideoFrameAncillary* packets;
-    if (videoFrame->GetAncillaryData(&packets) == S_OK) {
+    IDeckLinkVideoFrameAncillaryPackets* packets;
+    if (videoFrame->QueryInterface(IID_IDeckLinkVideoFrameAncillaryPackets, (void **)&packets) == S_OK) {
+
 
         packets->Release();
     }
