@@ -23,4 +23,4 @@ struct Packet {
   CommandInfo commandInfo;
   uint8_t data[64 - sizeof(Header) - sizeof(CommandInfo)];
 };
-#pragma pack(pop)
+#pragma pack(reset)
