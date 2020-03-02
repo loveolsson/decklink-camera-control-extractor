@@ -19,4 +19,5 @@ public:
 private:
     IDeckLink* deckLink;
     IDeckLinkInput* deckLinkInput = nullptr;
+    bool requires10bit;
 };

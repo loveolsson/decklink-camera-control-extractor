@@ -32,10 +32,9 @@ DeckLinkReceiver::DeckLinkReceiver(IDeckLink *_deckLink)
             return;
         }
         
-        bool requires10bit;
-        attr->GetFlag(BMDDeckLinkVANCRequires10BitYUVVideoFrames, &requires10bit);
+        attr->GetFlag(BMDDeckLinkVANCRequires10BitYUVVideoFrames, &this->requires10bit);
 
-        if (requires10bit) {
+        if (this->requires10bit) {
             std::cout << "Requires 10bit for VANC." << std::endl;
         }
 
@@ -135,6 +134,10 @@ DeckLinkReceiver::VideoInputFormatChanged(BMDVideoInputFormatChangedEvents notif
             std::cout << "Detected new video mode: " << name << std::endl;
         }
     }
+
+    BMDPixelFormat format = requires10bit ? bmdFormat10BitYUV : bmdFormat8BitYUV;
+    this->deckLinkInput->DisableVideoInput();
+    this->deckLinkInput->EnableVideoInput(newDisplayMode->GetDisplayMode(), format, bmdVideoInputEnableFormatDetection);
 
     return S_OK;
 }
