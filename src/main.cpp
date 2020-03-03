@@ -3,6 +3,7 @@
 #include "defines.h"
 #include "commands.h"
 #include "printpacket.h"
+#include "serialoutput.h"
 
 #include <chrono>
 #include <thread>
@@ -10,55 +11,104 @@
 #include <iostream>
 
 static volatile int keepRunning = 1;
-static const uint8_t leadIn[] = {0, 0, 0};
 
 void intHandler(int)
 {
 	keepRunning = 0;
 }
 
-int main()
+int main(int argc, char *argv[])
 {
+	std::string serialDevice;
+	std::string deckLinkName;
+	int baudRate = 19200;
+
+	if (argc < 2 || argc > 4)
+	{
+		std::cout << "\tUsage: ./DeckLinkCameraControl /dev/ttyS0 19200 \"DeckLink display name\"" << std::endl;
+		std::cout << "\tDefault baud rate is 19200. If DeckLink display name is omitted, the first DeckLink device will be selected." << std::endl;
+		std::cout << "\tExiting..." << std::endl;
+		return 0;
+	}
+
+	serialDevice = argv[1];
+
+	if (argc > 2)
+	{
+		try
+		{
+			baudRate = std::stoi(argv[2]);
+		}
+		catch (const std::exception &)
+		{
+			std::cout << "Could not parse baud rate. Exiting..." << std::endl;
+			return 0;
+		}
+	}
+
+	if (argc == 4)
+	{
+		deckLinkName = argv[3];
+	}
+	else
+	{
+		std::cout << "No DeckLink device name specified, using first device." << std::endl;
+	}
+
 	signal(SIGINT, intHandler);
+
+	SerialOutput serialOutput(serialDevice, baudRate);
+	if (!serialOutput.Begin())
+	{
+		std::cout << "Failed to open serial device: " << serialDevice << std::endl;
+		return 0;
+	}
 
 	ByteFifo fifo;
 
 	std::cout << "Searching for DeckLink cards..." << std::endl;
-	auto deckLink = GetFirstDeckLink();
-	if (deckLink == nullptr)
+
+	Wrapper<IDeckLink, true> wDeckLink(GetDeckLinkByNameOrFirst(deckLinkName));
+	if (wDeckLink.Get() == nullptr)
 	{
 		std::cout << "Found no DeckLink cards... exiting." << std::endl;
 		return 0;
 	}
 
-	DeckLinkReceiver receiver(deckLink, &fifo);
+	DeckLinkReceiver receiver(wDeckLink.Get(), &fifo);
 	Packet pkt;
 
 	while (keepRunning)
 	{
-		if (fifo.Pop((uint8_t *)&pkt.header, sizeof(Header)) == 0)
+		bool gotJobDone = false;
+
+		if (fifo.Peek((uint8_t *)&pkt.header, sizeof(Header)) != 0)
 		{
-			std::this_thread::sleep_for(std::chrono::microseconds(100));
-			continue;
+			const size_t totalLength = sizeof(Header) + PADDING(pkt.header.len);
+
+			if (fifo.Pop((uint8_t *)&pkt, totalLength) != 0)
+			{
+				gotJobDone = true;
+
+				serialOutput.Write((uint8_t *)&pkt, totalLength);
+				PrintPacket(pkt);
+			}
+			else
+			{
+				// If a header is written to the fifo, the full message should also be available
+				std::cout << "Not enough data in fifo, exiting..." << std::endl;
+				return 0;
+			}
 		}
 
-		while (pkt.header.len > 0 && fifo.Pop((uint8_t *)&pkt.commandInfo, PADDING(pkt.header.len)) == 0)
+		if (!gotJobDone)
 		{
 			std::this_thread::sleep_for(std::chrono::microseconds(100));
-		}
-
-		if (false)
-		{
-			//Serial2.write(leadIn, NUM(leadIn));
-			//Serial2.write((byte *)&pkt, sizeof(Header) + pkt.header.len);
-		}
-		else if (true || pkt.header.dest == 1)
-		{
-			PrintPacket(pkt);
 		}
 	}
 
-	std::cout << std::endl << "Exiting..." << std::endl;
+	std::cout << std::endl
+			  << "Exiting..." << std::endl;
 
 	return 0;
 }

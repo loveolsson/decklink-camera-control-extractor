@@ -12,25 +12,32 @@ void PrintPacket(Packet &pkt)
         return;
     }
 
-    std::cout << "Dest: " << (int)pkt.header.dest << ", Len: " << (int)pkt.header.len << ", ";
+    std::cout << "Dest: " << (int)pkt.header.dest;
+    std::cout << ", Len: " << (int)pkt.header.len;
 
     auto cmd = GetCommandFromData(&pkt.commandInfo);
     if (cmd != nullptr)
     {
-        std::cout << "\"" << cmd->name << "\", Type: ";
+        std::cout << ", \"" << cmd->name << "\"";
     }
     else
     {
-        std::cout << "\"Unknown command " << pkt.commandInfo.category << ", " << pkt.commandInfo.parameter << """, Type: ";
+        std::cout << ", \"Unknown command";
+        std::cout << "(" << pkt.commandInfo.category;
+        std::cout << ", " << pkt.commandInfo.parameter << ")";
     }
 
-    if (pkt.commandInfo.type) {
-        std::cout << "assign ";
-    } else {
-        std::cout << "offset/toggle ";
+    if (pkt.commandInfo.type)
+    {
+        std::cout << ", Type: assign";
+    }
+    else
+    {
+        std::cout << ", Type: offset/toggle";
     }
 
-    std::cout << "Hex:" << ToHex((uint8_t *)&pkt, sizeof(Header) + pkt.header.len) << std::endl;
+    std::cout << ", Hex:" << ToHex((uint8_t *)&pkt, sizeof(Header) + pkt.header.len);
+    std::cout << std::endl;
 }
 
 std::string ToHex(const uint8_t *buffer, size_t size)
