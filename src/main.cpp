@@ -36,7 +36,7 @@ int main()
 
 	while (keepRunning)
 	{
-		if (fifo.Pop((uint8_t *)&pkt, sizeof(Header)) == 0)
+		if (fifo.Pop((uint8_t *)&pkt.header, sizeof(Header)) == 0)
 		{
 			std::this_thread::sleep_for(std::chrono::microseconds(100));
 			continue;
@@ -58,8 +58,7 @@ int main()
 		}
 	}
 
-	std::cout << std::endl
-			  << "Exiting..." << std::endl;
+	std::cout << std::endl << "Exiting..." << std::endl;
 
 	return 0;
 }
