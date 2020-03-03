@@ -1,1 +1,1 @@
-# decklink-camera-control
+# decklink-camera-control-extractor
