@@ -30,7 +30,12 @@ SerialOutput::~SerialOutput()
 {
     if (this->fd >= 0)
     {
-        close(fd);
+        std::cout << "Closing serial port...";
+        if (close(fd) == 0) {
+            std::cout << "success." << std::endl;
+        } else {
+            std::cout << "failed." << std::endl;
+        }
     }
 }
 
