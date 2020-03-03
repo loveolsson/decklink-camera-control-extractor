@@ -3,7 +3,29 @@
 
 static constexpr auto tallyInterval = std::chrono::seconds(1);
 
-IDeckLink *GetDeckLinkByNameOrFirst(std::string &name)
+#ifdef MACOS
+typedef CFStringRef OSString;
+static std::string GetString(OSString mstr)
+{
+    CFIndex length = CFStringGetLength(mstr);
+    char *c_str = (char *)malloc(length + 1);
+    CFStringGetCString(mstr, c_str, length, kCFStringEncodingUTF8);
+
+    std::string str(c_str);
+
+    free(c_str);
+
+    return str;
+}
+#else
+typedef const char *OSString;
+static std::string GetString(OSString str)
+{
+    return str;
+}
+#endif
+
+IDeckLink *GetDeckLinkByNameOrFirst(const std::string &name)
 {
     IDeckLink *deckLink = nullptr;
     Wrapper<IDeckLinkIterator, true> wIterator(CreateDeckLinkIteratorInstance());
@@ -17,10 +39,10 @@ IDeckLink *GetDeckLinkByNameOrFirst(std::string &name)
     while (wIterator.Get()->Next(&deckLink) == S_OK)
     {
         Wrapper<IDeckLink> wDeckLink(deckLink);
-        const char *devName;
+        OSString devName;
         if (deckLink->GetDisplayName(&devName) == S_OK)
         {
-            if (name == devName || name.empty())
+            if (name == GetString(devName) || name.empty())
             {
                 deckLink->AddRef();
                 return deckLink;
@@ -163,13 +185,13 @@ DeckLinkReceiver::VideoInputFormatChanged(BMDVideoInputFormatChangedEvents notif
 {
     if (newDisplayMode)
     {
-        const char *name;
+        OSString name;
 
         if (newDisplayMode->GetName(&name) == S_OK)
         {
-            std::cout << "Detected new video mode: " << name << std::endl;
+            std::cout << "Detected new video mode: " << GetString(name) << std::endl;
         }
-        
+
         // We need to do this dance, bacause the VANC decoding doesn't start if the format is autodetected
         BMDPixelFormat format = this->requires10bit ? bmdFormat10BitYUV : bmdFormat8BitYUV;
 

@@ -19,11 +19,14 @@ void intHandler(int)
 
 int main(int argc, char *argv[])
 {
-	std::string serialDevice;
-	std::string deckLinkName;
 	int baudRate = 19200;
 
-	if (argc < 2 || argc > 4)
+	std::vector<std::string> args;
+	for (int i = 1; i < argc; ++i) {
+		args.push_back(argv[i]);
+	}
+
+	if (args.empty() || args.size() > 3)
 	{
 		std::cout << "\tUsage: ./DeckLinkCameraControl /dev/ttyS0 19200 \"DeckLink display name\"" << std::endl;
 		std::cout << "\tDefault baud rate is 19200. If DeckLink display name is omitted, the first DeckLink device will be selected." << std::endl;
@@ -31,13 +34,12 @@ int main(int argc, char *argv[])
 		return 0;
 	}
 
-	serialDevice = argv[1];
 
-	if (argc > 2)
+	if (args.size() > 1)
 	{
 		try
 		{
-			baudRate = std::stoi(argv[2]);
+			baudRate = std::stoi(args[1]);
 		}
 		catch (const std::exception &)
 		{
@@ -46,35 +48,27 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if (argc == 4)
-	{
-		deckLinkName = argv[3];
-	}
-	else
-	{
-		std::cout << "No DeckLink device name specified, using first device." << std::endl;
-	}
 
 	signal(SIGINT, intHandler);
 
-	SerialOutput serialOutput(serialDevice, baudRate);
+	SerialOutput serialOutput(args[0], baudRate);
 	if (!serialOutput.Begin())
 	{
-		std::cout << "Failed to open serial device: " << serialDevice << std::endl;
+		std::cout << "Failed to open serial device: " << args[0] << std::endl;
 		return 0;
 	}
 
-	ByteFifo fifo;
 
 	std::cout << "Searching for DeckLink cards..." << std::endl;
 
-	Wrapper<IDeckLink, true> wDeckLink(GetDeckLinkByNameOrFirst(deckLinkName));
+	Wrapper<IDeckLink, true> wDeckLink(GetDeckLinkByNameOrFirst(args.size() == 3 ? args[2] : ""));
 	if (wDeckLink.Get() == nullptr)
 	{
 		std::cout << "Found no DeckLink cards... exiting." << std::endl;
 		return 0;
 	}
 
+	ByteFifo fifo;
 	DeckLinkReceiver receiver(wDeckLink.Get(), &fifo);
 	Packet pkt;
 

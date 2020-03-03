@@ -3,11 +3,12 @@
 #include "include/DeckLinkAPI.h"
 #include "mutexfifo.h"
 #include "defines.h"
+#include "dlwrapper.h"
 
 #include <vector>
 #include <chrono>
 
-IDeckLink *GetDeckLinkByNameOrFirst(std::string &name);
+IDeckLink *GetDeckLinkByNameOrFirst(const std::string &name);
 
 class DeckLinkReceiver : public IDeckLinkInputCallback
 {
