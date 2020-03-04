@@ -8,12 +8,12 @@
 #include <vector>
 #include <chrono>
 
-IDeckLink *GetDeckLinkByNameOrFirst(const std::string &name);
+DLWrapper<IDeckLink> GetDeckLinkByNameOrFirst(const std::string &name);
 
 class DeckLinkReceiver : public IDeckLinkInputCallback
 {
 public:
-    DeckLinkReceiver(IDeckLink *deckLink, ByteFifo *_fifo);
+    DeckLinkReceiver(DLWrapper<IDeckLink> deckLink, ByteFifo &_fifo);
     ~DeckLinkReceiver();
 
     HRESULT VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, IDeckLinkAudioInputPacket *audioPacket);
@@ -24,9 +24,9 @@ public:
     virtual ULONG Release() final;
 
 private:
-    Wrapper<IDeckLinkInput, true> wDeckLinkInput;
+    DLWrapper<IDeckLinkInput, true> wDeckLinkInput;
     bool requires10bit;
-    ByteFifo *fifo;
+    ByteFifo &fifo;
     std::vector<uint8_t> activeTallyData;
     std::chrono::steady_clock::time_point lastTallyUpdate;
 };

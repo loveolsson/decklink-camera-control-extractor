@@ -31,9 +31,12 @@ SerialOutput::~SerialOutput()
     if (this->fd >= 0)
     {
         std::cout << "Closing serial port...";
-        if (close(fd) == 0) {
+        if (close(fd) == 0)
+        {
             std::cout << "success." << std::endl;
-        } else {
+        }
+        else
+        {
             std::cout << "failed." << std::endl;
         }
     }
@@ -95,11 +98,11 @@ void SerialOutput::Write(uint8_t *data, size_t size)
     }
 
     const uint8_t leadIn[] = {
-        254,
-        254,
-        254,
-        (uint8_t)size,
-        CRC(data, size),
+        254,             // The receiver is looking for 3 bytes of 254 in a row to start parsing
+        254,             //
+        254,             //
+        (uint8_t)size,   // Size of packet, including header
+        CRC(data, size), // XOR CRC
     };
 
     //attempt to send

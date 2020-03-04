@@ -19,8 +19,8 @@ public:
 
     while (itemsLeft > 0)
     {
-      size_t leftBeforeWrap = S - this->writeHead;
-      size_t itemsToWrite = std::min(itemsLeft, leftBeforeWrap);
+      const size_t leftBeforeWrap = S - this->writeHead;
+      const size_t itemsToWrite = std::min(itemsLeft, leftBeforeWrap);
 
       //printf("itemsToPush: %i WriteHead: %i, S: %i\n", itemsToWrite, this->writeHead);
 
@@ -49,8 +49,8 @@ public:
 
     while (itemsLeft > 0)
     {
-      size_t leftBeforeWrap = S - this->readHead;
-      size_t itemsToRead = std::min(itemsLeft, leftBeforeWrap);
+      const size_t leftBeforeWrap = S - this->readHead;
+      const size_t itemsToRead = std::min(itemsLeft, leftBeforeWrap);
 
       //printf("itemsToPop: %i ReadHead: %i\n", itemsToRead, this->readHead);
 
@@ -80,8 +80,8 @@ public:
 
     while (itemsLeft > 0)
     {
-      size_t leftBeforeWrap = S - tempReadHead;
-      size_t itemsToRead = std::min(itemsLeft, leftBeforeWrap);
+      const size_t leftBeforeWrap = S - tempReadHead;
+      const size_t itemsToRead = std::min(itemsLeft, leftBeforeWrap);
 
       //printf("itemsToPeek: %i, ReadHead: %i\n", itemsToRead, tempReadHead);
 

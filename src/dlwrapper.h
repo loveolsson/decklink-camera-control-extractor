@@ -6,7 +6,13 @@
 #include <string>
 
 #define IID_FROM_TYPE(x) IID_##x
-#define WRAPPED_FROM_IUNKNOWN(D, T) Wrapper<T>::FromIUnknown(D, IID_FROM_TYPE(T))
+#define WRAPPED_FROM_IUNKNOWN(D, T) DLWrapper<T>::FromIUnknown(D, IID_FROM_TYPE(T))
+#define WRAPPED_PRINT_FROM_IUNKNOWN(D, T) DLWrapper<T, true>::FromIUnknown(D, IID_FROM_TYPE(T))
+#ifdef DISABLE_LOGGING
+static const bool enableLogging = false;
+#else
+static const bool enableLogging = true;
+#endif
 
 template <typename T>
 static std::string Demangle()
@@ -28,44 +34,48 @@ static std::string Demangle()
     return res;
 }
 
-template <typename T, bool PrintRelease = false>
-class Wrapper
+template <typename T, bool Print = false>
+class DLWrapper
 {
 public:
-    Wrapper()
-        : item(nullptr)
-    {
-    }
-
-    Wrapper(T *_item)
+    DLWrapper(T *_item)
         : item(_item)
     {
-    }
-
-    template <bool P>
-    Wrapper(const Wrapper<T, P> &_o)
-        : item(_o.Get())
-    {
-        this->item->AddRef();
-    }
-
-    ~Wrapper()
-    {
-        if (item)
+        if (this->item && Print && enableLogging)
         {
-            if (PrintRelease)
-            {
-                static std::string name = Demangle<T>();
-                std::cout << "Releasing: " << name << std::endl;
-            }
-
-            item->Release();
+            std::string name = Demangle<T>();
+            std::cout << "Wrapping: " << name << std::endl;
         }
     }
 
-    T *Get() const
+    DLWrapper()
+        : DLWrapper(nullptr)
     {
-        return item;
+    }
+
+    // This is templated to accept to be set from a Wrapper with different PrintRelease
+    template <bool P>
+    DLWrapper(const DLWrapper<T, P> &_o)
+        : DLWrapper(_o.Get())
+    {
+        if (this->item)
+        {
+            this->item->AddRef();
+        }
+    }
+
+    ~DLWrapper()
+    {
+        if (this->item)
+        {
+            if (Print && enableLogging)
+            {
+                std::string name = Demangle<T>();
+                std::cout << "Releasing: " << name << std::endl;
+            }
+
+            this->item->Release();
+        }
     }
 
     explicit operator bool() const
@@ -73,7 +83,22 @@ public:
         return this->item != nullptr;
     }
 
-    static Wrapper<T, PrintRelease> FromIUnknown(IUnknown *iface, REFIID idd)
+    T *Get() const {
+        return this->item;
+    }
+
+    T& operator*() const throw()
+    {
+        return *this->item;
+    }
+
+    T* operator->() const throw()
+    {
+        return this->item;
+    }
+
+    // For use in conjunction with the WRAPPED_FROM_IUNKNOWN macro to spin up wrapped instances from a IUnknown query
+    static DLWrapper<T, Print> FromIUnknown(IUnknown *iface, REFIID iid)
     {
         if (iface == nullptr)
         {
@@ -81,7 +106,7 @@ public:
         }
 
         T *t;
-        if (iface->QueryInterface(idd, (void **)&t) == S_OK)
+        if (iface->QueryInterface(iid, (void **)&t) == S_OK)
         {
             return t;
         }
@@ -89,12 +114,13 @@ public:
         return nullptr;
     }
 
+    // For use in conjunction with the WRAPPED_FROM_IUNKNOWN macro to spin up wrapped instances from a wrapped IUnknown
     template <typename Q, bool P>
-    static Wrapper<T, PrintRelease> FromIUnknown(Wrapper<Q, P> &wIface, REFIID idd)
+    static DLWrapper<T, Print> FromIUnknown(DLWrapper<Q, P> &wIface, REFIID iid)
     {
-        return Wrapper<T, PrintRelease>::FromIUnknown(wIface.Get(), idd);
+        return DLWrapper<T, Print>::FromIUnknown(wIface.Get(), iid);
     }
 
 private:
-    T *item;
+    T *item; 
 };

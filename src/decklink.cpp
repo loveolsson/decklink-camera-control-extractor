@@ -25,10 +25,10 @@ static std::string GetString(OSString str)
 }
 #endif
 
-IDeckLink *GetDeckLinkByNameOrFirst(const std::string &name)
+DLWrapper<IDeckLink> GetDeckLinkByNameOrFirst(const std::string &name)
 {
     IDeckLink *deckLink = nullptr;
-    Wrapper<IDeckLinkIterator, true> wIterator(CreateDeckLinkIteratorInstance());
+    DLWrapper<IDeckLinkIterator, true> wIterator(CreateDeckLinkIteratorInstance());
 
     if (!wIterator)
     {
@@ -36,16 +36,15 @@ IDeckLink *GetDeckLinkByNameOrFirst(const std::string &name)
         return nullptr;
     }
 
-    while (wIterator.Get()->Next(&deckLink) == S_OK)
+    while (wIterator->Next(&deckLink) == S_OK)
     {
-        Wrapper<IDeckLink> wDeckLink(deckLink);
+        DLWrapper<IDeckLink> wDeckLink(deckLink);
         OSString devName;
         if (deckLink->GetDisplayName(&devName) == S_OK)
         {
             if (name == GetString(devName) || name.empty())
             {
-                deckLink->AddRef();
-                return deckLink;
+                return wDeckLink;
             }
         }
     }
@@ -53,7 +52,7 @@ IDeckLink *GetDeckLinkByNameOrFirst(const std::string &name)
     return nullptr;
 }
 
-DeckLinkReceiver::DeckLinkReceiver(IDeckLink *deckLink, ByteFifo *_fifo)
+DeckLinkReceiver::DeckLinkReceiver(DLWrapper<IDeckLink> deckLink, ByteFifo &_fifo)
     : fifo(_fifo), lastTallyUpdate(std::chrono::steady_clock::now())
 {
     this->wDeckLinkInput = WRAPPED_FROM_IUNKNOWN(deckLink, IDeckLinkInput);
@@ -72,7 +71,7 @@ DeckLinkReceiver::DeckLinkReceiver(IDeckLink *deckLink, ByteFifo *_fifo)
             return;
         }
 
-        attr.Get()->GetFlag(BMDDeckLinkVANCRequires10BitYUVVideoFrames, &this->requires10bit);
+        attr->GetFlag(BMDDeckLinkVANCRequires10BitYUVVideoFrames, &this->requires10bit);
 
         if (this->requires10bit)
         {
@@ -80,7 +79,7 @@ DeckLinkReceiver::DeckLinkReceiver(IDeckLink *deckLink, ByteFifo *_fifo)
         }
     }
 
-    if (this->wDeckLinkInput.Get()->SetCallback(this) != S_OK)
+    if (this->wDeckLinkInput->SetCallback(this) != S_OK)
     {
         std::cout << "Failed to set input callback." << std::endl;
         return;
@@ -88,13 +87,13 @@ DeckLinkReceiver::DeckLinkReceiver(IDeckLink *deckLink, ByteFifo *_fifo)
 
     BMDPixelFormat format = requires10bit ? bmdFormat10BitYUV : bmdFormat8BitYUV;
 
-    if (this->wDeckLinkInput.Get()->EnableVideoInput(bmdModeNTSC, format, bmdVideoInputEnableFormatDetection) != S_OK)
+    if (this->wDeckLinkInput->EnableVideoInput(bmdModeNTSC, format, bmdVideoInputEnableFormatDetection) != S_OK)
     {
         std::cout << "Failed to enable video stream." << std::endl;
         return;
     }
 
-    if (this->wDeckLinkInput.Get()->StartStreams() != S_OK)
+    if (this->wDeckLinkInput->StartStreams() != S_OK)
     {
         std::cout << "Failed to start video stream." << std::endl;
     }
@@ -102,11 +101,11 @@ DeckLinkReceiver::DeckLinkReceiver(IDeckLink *deckLink, ByteFifo *_fifo)
 
 DeckLinkReceiver::~DeckLinkReceiver()
 {
-    if (this->wDeckLinkInput.Get())
+    if (this->wDeckLinkInput)
     {
         std::cout << "Stopping input." << std::endl;
-        this->wDeckLinkInput.Get()->StopStreams();
-        this->wDeckLinkInput.Get()->FlushStreams();
+        this->wDeckLinkInput->StopStreams();
+        this->wDeckLinkInput->FlushStreams();
     }
 }
 
@@ -124,13 +123,13 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
     uint32_t size;
 
     // Check for tally data
-    if (packets.Get()->GetFirstPacketByID('Q', 'R', &packet) == S_OK)
+    if (packets->GetFirstPacketByID('Q', 'R', &packet) == S_OK)
     {
-        Wrapper<IDeckLinkAncillaryPacket> wPacket(packet);
+        DLWrapper<IDeckLinkAncillaryPacket> wPacket(packet);
         if (packet->GetBytes(bmdAncillaryPacketFormatUInt8, (const void **)&data, &size) == S_OK)
         {
-            std::vector<uint8_t> newTallyData(data, data + size);
-            auto now = std::chrono::steady_clock::now();
+            const std::vector<uint8_t> newTallyData(data, data + size);
+            const auto now = std::chrono::steady_clock::now();
 
             bool tallyHasChanged = false;
             if (this->activeTallyData != newTallyData)
@@ -161,19 +160,19 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
 
                     const size_t totalSize = sizeof(Header) + PADDING(pkt.header.len);
 
-                    this->fifo->Push((uint8_t *)&pkt, totalSize);
+                    this->fifo.Push((uint8_t *)&pkt, totalSize);
                 }
             }
         }
     }
 
     // Check for camera control data
-    if (packets.Get()->GetFirstPacketByID('Q', 'S', &packet) == S_OK)
+    if (packets->GetFirstPacketByID('Q', 'S', &packet) == S_OK)
     {
-        Wrapper<IDeckLinkAncillaryPacket> wPacket(packet);
+        DLWrapper<IDeckLinkAncillaryPacket> wPacket(packet);
         if (packet->GetBytes(bmdAncillaryPacketFormatUInt8, (const void **)&data, &size) == S_OK)
         {
-            this->fifo->Push(data, size);
+            this->fifo.Push(data, size);
         }
     }
 
@@ -192,13 +191,13 @@ DeckLinkReceiver::VideoInputFormatChanged(BMDVideoInputFormatChangedEvents notif
             std::cout << "Detected new video mode: " << GetString(name) << std::endl;
         }
 
-        // We need to do this dance, bacause the VANC decoding doesn't start if the format is autodetected
-        BMDPixelFormat format = this->requires10bit ? bmdFormat10BitYUV : bmdFormat8BitYUV;
+        const BMDPixelFormat format = this->requires10bit ? bmdFormat10BitYUV : bmdFormat8BitYUV;
 
-        this->wDeckLinkInput.Get()->StopStreams();
-        this->wDeckLinkInput.Get()->DisableVideoInput();
-        this->wDeckLinkInput.Get()->EnableVideoInput(newDisplayMode->GetDisplayMode(), format, bmdVideoInputEnableFormatDetection);
-        this->wDeckLinkInput.Get()->StartStreams();
+        // We need to do this dance, bacause the VANC decoding doesn't start if the format is autodetected
+        this->wDeckLinkInput->StopStreams();
+        this->wDeckLinkInput->DisableVideoInput();
+        this->wDeckLinkInput->EnableVideoInput(newDisplayMode->GetDisplayMode(), format, bmdVideoInputEnableFormatDetection);
+        this->wDeckLinkInput->StartStreams();
     }
 
     return S_OK;
