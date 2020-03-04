@@ -1,7 +1,5 @@
 #include "decklink.h"
 #include "mutexfifo.h"
-#include "defines.h"
-#include "commands.h"
 #include "printpacket.h"
 #include "serialoutput.h"
 
