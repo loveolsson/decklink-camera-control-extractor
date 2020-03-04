@@ -17,9 +17,13 @@ static void intHandler(int)
 
 static void PrintUsage()
 {
-	std::cout << "\tUsage: ./DeckLinkCameraControl /dev/ttyS0 19200 \"DeckLink display name\"" << std::endl;
-	std::cout << "\tDefault baud rate is 19200. If DeckLink display name is omitted, the first DeckLink device will be selected." << std::endl;
-	std::cout << "\tExiting..." << std::endl;
+	std::cout << "Usage:" << std::endl;
+	std::cout << "\t./DeckLinkCameraControl /dev/ttyS0 19200 \"DeckLink device\"" << std::endl
+			  << std::endl;
+	std::cout << "\tSerial device (/dev/ttyS[] on Linux, /dev/cu.[] on Mac)." << std::endl;
+	std::cout << "\tBaud rate [Optional], defaults to 19200." << std::endl;
+	std::cout << "\tDeckLink device [Optional], defaults to first device." << std::endl
+			  << std::endl;
 }
 
 int main(int argc, char *argv[])
@@ -48,10 +52,8 @@ int main(int argc, char *argv[])
 		}
 		catch (const std::exception &)
 		{
-			std::cout << "Could not parse baud rate. Exiting..." << std::endl
-					  << std::endl;
+			std::cout << "Could not parse baud rate. Exiting..." << std::endl;
 			PrintUsage();
-
 			return EXIT_FAILURE;
 		}
 	}
@@ -60,6 +62,7 @@ int main(int argc, char *argv[])
 	if (!serialOutput.Begin())
 	{
 		std::cout << "Failed to open serial device: " << args[0] << std::endl;
+		PrintUsage();
 		return EXIT_FAILURE;
 	}
 
@@ -70,6 +73,7 @@ int main(int argc, char *argv[])
 	if (!wDeckLink)
 	{
 		std::cout << "Found no DeckLink cards... exiting." << std::endl;
+		PrintUsage();
 		return EXIT_FAILURE;
 	}
 
