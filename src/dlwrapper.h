@@ -2,9 +2,31 @@
 #include "include/DeckLinkAPI.h"
 
 #include <iostream>
+#include <cxxabi.h>
+#include <string>
 
 #define IID_FROM_TYPE(x) IID_##x
 #define WRAPPED_FROM_IUNKNOWN(D, T) Wrapper<T>::FromIUnknown(D, IID_FROM_TYPE(T))
+
+template <typename T>
+static std::string Demangle()
+{
+    // Returns an demangled version of the type name, or the mangled version if that call fails.
+    std::string res = typeid(T).name();
+
+    size_t size = 64;
+    int status;
+    char *out = (char *)malloc(size);
+
+    char *c_str = abi::__cxa_demangle(res.c_str(), out, &size, &status);
+
+    if (c_str != nullptr && status == 0)
+    {
+        res = c_str;
+    }
+
+    return res;
+}
 
 template <typename T, bool PrintRelease = false>
 class Wrapper
@@ -33,7 +55,8 @@ public:
         {
             if (PrintRelease)
             {
-                std::cout << "Releasing: " << typeid(T).name() << std::endl;
+                static std::string name = Demangle<T>();
+                std::cout << "Releasing: " << name << std::endl;
             }
 
             item->Release();

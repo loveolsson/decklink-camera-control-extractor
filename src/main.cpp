@@ -22,7 +22,8 @@ int main(int argc, char *argv[])
 	int baudRate = 19200;
 
 	std::vector<std::string> args;
-	for (int i = 1; i < argc; ++i) {
+	for (int i = 1; i < argc; ++i)
+	{
 		args.push_back(argv[i]);
 	}
 
@@ -33,7 +34,6 @@ int main(int argc, char *argv[])
 		std::cout << "\tExiting..." << std::endl;
 		return 0;
 	}
-
 
 	if (args.size() > 1)
 	{
@@ -48,7 +48,6 @@ int main(int argc, char *argv[])
 		}
 	}
 
-
 	signal(SIGINT, intHandler);
 
 	SerialOutput serialOutput(args[0], baudRate);
@@ -57,7 +56,6 @@ int main(int argc, char *argv[])
 		std::cout << "Failed to open serial device: " << args[0] << std::endl;
 		return 0;
 	}
-
 
 	std::cout << "Searching for DeckLink cards..." << std::endl;
 
