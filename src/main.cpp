@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
 	if (args.empty() || args.size() > 3)
 	{
 		PrintUsage();
-		return 0;
+		return EXIT_FAILURE;
 	}
 
 	if (args.size() > 1)
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
 					  << std::endl;
 			PrintUsage();
 
-			return 0;
+			return EXIT_FAILURE;
 		}
 	}
 
@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
 	if (!serialOutput.Begin())
 	{
 		std::cout << "Failed to open serial device: " << args[0] << std::endl;
-		return 0;
+		return EXIT_FAILURE;
 	}
 
 	std::cout << "Searching for DeckLink cards..." << std::endl;
@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
 	if (!wDeckLink)
 	{
 		std::cout << "Found no DeckLink cards... exiting." << std::endl;
-		return 0;
+		return EXIT_FAILURE;
 	}
 
 	ByteFifo fifo;
@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
 			{
 				// If a header is written to the fifo, the full message should also be available
 				std::cout << "Not enough data in fifo, exiting..." << std::endl;
-				return 0;
+				return EXIT_FAILURE;
 			}
 		}
 
@@ -109,5 +109,5 @@ int main(int argc, char *argv[])
 	std::cout << std::endl
 			  << "Exiting..." << std::endl;
 
-	return 0;
+	return EXIT_SUCCESS;
 }
