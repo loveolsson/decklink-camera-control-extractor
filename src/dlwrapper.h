@@ -105,7 +105,7 @@ public:
         this->item = nullptr;
         return temp;
 
-        if (this->item) {
+        if (temp) {
             std::cout << "Detach: " << Demangle<T>() << " " << (uint64_t)temp << ", after move " << (uint64_t)this->item << std::endl;
         }
     }
