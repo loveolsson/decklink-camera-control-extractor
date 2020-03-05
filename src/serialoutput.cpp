@@ -71,8 +71,8 @@ bool SerialOutput::Begin()
     serial.c_cflag |= CS8;     /* Set the data bits = 8                                 */
 
     serial.c_cflag &= ~CRTSCTS;       /* No Hardware flow Control                         */
-    serial.c_cflag &= ~CREAD;       /* No Hardware flow Control                         */
-    serial.c_cflag |= CLOCAL; /* Enable receiver,Ignore Modem Control lines       */
+    serial.c_cflag &= ~CREAD;       /* Disable receiver                         */
+    serial.c_cflag |= CLOCAL; /* Ignore Modem Control lines       */
 
     serial.c_iflag &= ~(IXON | IXOFF | IXANY);         /* Disable XON/XOFF flow control both i/p and o/p */
     serial.c_iflag &= ~(ICANON | ECHO | ECHOE | ISIG); /* Non Cannonical mode                            */
@@ -107,8 +107,10 @@ void SerialOutput::Write(uint8_t *data, size_t size)
         CRC(data, size), // XOR CRC
     };
 
+    const char* str = "Hej";
+
     //attempt to send
-    if (write(fd, leadIn, sizeof(leadIn)) < 0)
+    if (write(fd, str, strlen(str)) < 0)
     {
         std::cout << "Failed to write lead-in" << std::endl;
         return;
