@@ -57,12 +57,12 @@ public:
     explicit DLWrapper(T *_item)
         : item(_item)
     {
-        std::cout << "Wrapping: " << Demangle<T>() << " " << (uint64_t)this->item << std::endl;
+        //std::cout << "Wrapping: " << Demangle<T>() << " " << (uint64_t)this->item << std::endl;
     }
 
     ~DLWrapper()
     {
-        std::cout << "Releasing: " << Demangle<T>() << " " << (uint64_t)this->item << std::endl;
+        //std::cout << "Releasing: " << Demangle<T>() << " " << (uint64_t)this->item << std::endl;
         if (this->item)
         {
             this->item->Release();
