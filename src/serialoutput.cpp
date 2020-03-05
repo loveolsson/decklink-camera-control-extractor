@@ -54,11 +54,11 @@ bool SerialOutput::Begin()
     termios serial = {0};
 
     //get parameters associated with the terminal
-    if (tcgetattr(fd, &serial) < 0)
-    {
-        std::cout << "Error [serial_communication]: getting configuration" << std::endl;
-        return false;
-    }
+    // if (tcgetattr(fd, &serial) < 0)
+    // {
+    //     std::cout << "Error [serial_communication]: getting configuration" << std::endl;
+    //     return false;
+    // }
 
     cfsetospeed(&serial, (speed_t)baudrate);
     cfsetispeed(&serial, (speed_t)baudrate);
@@ -90,7 +90,7 @@ bool SerialOutput::Begin()
     serial.c_cc[VTIME] = 0;
 
     /* Make raw */
-    //cfmakeraw(&serial);
+    cfmakeraw(&serial);
 
     /* Flush Port, then applies attributes */
     tcflush(this->fd, TCIFLUSH);
