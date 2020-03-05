@@ -66,7 +66,7 @@ public:
         }
     }
 
-    DLWrapper(T *_item)
+    DLWrapper(T *_item) explicit
         : item(_item)
     {
         if (this->item && true || (Print && enableLogging))
@@ -74,7 +74,6 @@ public:
             std::cout << "Wrapping: " << Demangle<T>() << std::endl;
         }
     }
-
 
     ~DLWrapper()
     {
