@@ -66,7 +66,7 @@ DLWrapper<IDeckLink, true> GetDeckLinkByNameOrFirst(const char *name)
 }
 
 DeckLinkReceiver::DeckLinkReceiver(DLWrapper<IDeckLink> deckLink, ByteFifo &_fifo)
-    : fifo(_fifo), lastTallyUpdate(std::chrono::steady_clock::now())
+    : fifo(_fifo), lastTallyUpdate(std::chrono::steady_clock::now()), wDeckLinkInput()
 {
     this->wDeckLinkInput = WRAPPED_FROM_IUNKNOWN(deckLink, IDeckLinkInput);
     if (!this->wDeckLinkInput)
