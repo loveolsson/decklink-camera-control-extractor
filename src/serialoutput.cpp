@@ -103,9 +103,9 @@ void SerialOutput::Write(uint8_t *data, size_t size)
     }
 
     uint8_t leadIn[] = {
-        1,             // The receiver is looking for 3 bytes of 254 in a row to start parsing
-        1,             //
-        1,             //
+        254,             // The receiver is looking for 3 bytes of 254 in a row to start parsing
+        254,             //
+        254,             //
         (uint8_t)size,   // Size of packet, including header
         CRC(data, size), // XOR CRC
     };
