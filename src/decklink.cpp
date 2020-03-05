@@ -135,8 +135,9 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
     const uint8_t *data;
     uint32_t size;
 
+#if 0
     // Check for tally data
-    if (false && packets->GetFirstPacketByID('Q', 'R', &packet) == S_OK)
+    if (false && SUCCEEDED(packets->GetFirstPacketByID('Q', 'R', &packet)))
     {
         DLWrapper wPacket(packet);
         if (packet->GetBytes(bmdAncillaryPacketFormatUInt8, (const void **)&data, &size) == S_OK)
@@ -176,9 +177,10 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
             }
         }
     }
+#endif
 
     // Check for camera control data
-    if (packets->GetFirstPacketByID('Q', 'S', &packet) == S_OK)
+    if (SUCCEEDED(packets->GetFirstPacketByID('Q', 'S', &packet)))
     {
         DLWrapper wPacket(packet);
         if (packet->GetBytes(bmdAncillaryPacketFormatUInt8, (const void **)&data, &size) == S_OK)
