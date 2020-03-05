@@ -100,15 +100,15 @@ DeckLinkReceiver::DeckLinkReceiver(DLWrapper<IDeckLink> deckLink, ByteFifo &_fif
 
     BMDPixelFormat format = requires10bit ? bmdFormat10BitYUV : bmdFormat8BitYUV;
 
-    if (FAILED(this->wDeckLinkInput->EnableVideoInput(bmdModeNTSC, format, bmdVideoInputEnableFormatDetection)))
+    if (FAILED(auto res = this->wDeckLinkInput->EnableVideoInput(bmdModeNTSC, format, bmdVideoInputEnableFormatDetection)))
     {
-        std::cout << "Failed to enable video stream: " << std::endl;
+        std::cout << "Failed to enable video stream." <<res << std::endl;
         return;
     }
 
     if (FAILED(this->wDeckLinkInput->StartStreams()))
     {
-        std::cout << "Failed to start video stream: " << std::endl;
+        std::cout << "Failed to start video stream." << std::endl;
     }
 }
 
