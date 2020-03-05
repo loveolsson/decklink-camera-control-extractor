@@ -53,12 +53,12 @@ bool SerialOutput::Begin()
     //struct termios
     termios serial = {0};
 
-    //get parameters associated with the terminal
-    // if (tcgetattr(fd, &serial) < 0)
-    // {
-    //     std::cout << "Error [serial_communication]: getting configuration" << std::endl;
-    //     return false;
-    // }
+    get parameters associated with the terminal
+    if (tcgetattr(fd, &serial) < 0)
+    {
+        std::cout << "Error [serial_communication]: getting configuration" << std::endl;
+        return false;
+    }
 
     cfsetospeed(&serial, (speed_t)baudrate);
     cfsetispeed(&serial, (speed_t)baudrate);
