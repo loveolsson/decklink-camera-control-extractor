@@ -61,13 +61,14 @@ public:
     DLWrapper(DLWrapper<T, P> &&_o)
         : item(_o.Detach())
     {
-        if (this->item) {
+        if (this->item)
+        {
             std::cout << Demangle<T>() << " moved." << std::endl;
         }
     }
 
-    DLWrapper(T *_item)
-        : item(_item) explicit
+    explicit DLWrapper(T *_item)
+        : item(_item)
     {
         if (this->item && true || (Print && enableLogging))
         {
@@ -120,16 +121,16 @@ public:
     {
         if (iface == nullptr)
         {
-            return nullptr;
+            return DLWrapper<T, Print>();
         }
 
         T *t;
         if (SUCCEEDED(iface->QueryInterface(iid, (void **)&t)))
         {
-            return t;
+            return DLWrapper<T, Print>(t);
         }
 
-        return nullptr;
+        return DLWrapper<T, Print>();
     }
 
     // For use in conjunction with the WRAPPED_FROM_IUNKNOWN macro to spin up wrapped instances from a wrapped IUnknown

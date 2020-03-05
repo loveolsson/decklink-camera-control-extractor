@@ -46,7 +46,7 @@ DLWrapper<IDeckLink, true> GetDeckLinkByNameOrFirst(const char *name)
     if (!wIterator)
     {
         std::cout << "Could not initialize DeckLink driver." << std::endl;
-        return nullptr;
+        return DLWrapper<IDeckLink, true>();
     }
 
     while (wIterator->Next(&deckLink) == S_OK)
@@ -62,7 +62,7 @@ DLWrapper<IDeckLink, true> GetDeckLinkByNameOrFirst(const char *name)
         }
     }
 
-    return nullptr;
+    return DLWrapper<IDeckLink, true>();
 }
 
 DeckLinkReceiver::DeckLinkReceiver(DLWrapper<IDeckLink> deckLink, ByteFifo &_fifo)
