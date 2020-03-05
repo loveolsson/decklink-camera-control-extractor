@@ -44,7 +44,7 @@ SerialOutput::~SerialOutput()
 
 bool SerialOutput::Begin()
 {
-    this->fd = open(this->deviceName, O_RDWR | O_NOCTTY | O_NDELAY);
+    this->fd = open(this->deviceName, O_RDWR | /*O_NOCTTY |*/ O_NDELAY);
     if (this->fd < 0)
     {
         std::cout << "Error [serial_communcation]: opening Port: " << this->deviceName << std::endl;
@@ -113,7 +113,4 @@ void SerialOutput::Write(uint8_t *data, size_t size)
     //     std::cout << "Failed to write packet" << std::endl;
     //     return;
     // }
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
 }
