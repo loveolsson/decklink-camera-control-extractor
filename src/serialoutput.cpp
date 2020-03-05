@@ -90,7 +90,7 @@ bool SerialOutput::Begin()
     serial.c_cc[VTIME] = 0;
 
     /* Make raw */
-    cfmakeraw(&serial);
+    //cfmakeraw(&serial);
 
     /* Flush Port, then applies attributes */
     tcflush(this->fd, TCIFLUSH);
