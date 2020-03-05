@@ -101,6 +101,11 @@ public:
 
     T *Detach()
     {
+        if (this->item) {
+            std::cout << "Detach: " << Demangle<T>() << " " << (uint64_t)this->item << std::endl;
+        }
+
+
         T *temp = this->item;
         this->item = nullptr;
         return temp;
