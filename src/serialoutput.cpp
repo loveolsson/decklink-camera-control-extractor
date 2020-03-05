@@ -53,7 +53,7 @@ bool SerialOutput::Begin()
     //struct termios
     termios serial = {0};
 
-    get parameters associated with the terminal
+    //get parameters associated with the terminal
     if (tcgetattr(fd, &serial) < 0)
     {
         std::cout << "Error [serial_communication]: getting configuration" << std::endl;
