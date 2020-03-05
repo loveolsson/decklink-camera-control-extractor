@@ -66,8 +66,8 @@ public:
         }
     }
 
-    DLWrapper(T *_item) explicit
-        : item(_item)
+    DLWrapper(T *_item)
+        : item(_item) explicit
     {
         if (this->item && true || (Print && enableLogging))
         {
