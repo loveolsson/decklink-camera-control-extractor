@@ -110,7 +110,7 @@ void SerialOutput::Write(uint8_t *data, size_t size)
 
 
     //attempt to send
-    if (write(fd, &leadIn[0], sizeof(leadIn)) < 0)
+    if (write(fd, leadIn, sizeof(leadIn)) < 0)
     {
         std::cout << "Failed to write lead-in" << std::endl;
         return;
