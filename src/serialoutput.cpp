@@ -71,7 +71,8 @@ bool SerialOutput::Begin()
     serial.c_cflag |= CS8;     /* Set the data bits = 8                                 */
 
     serial.c_cflag &= ~CRTSCTS;       /* No Hardware flow Control                         */
-    serial.c_cflag |= CREAD | CLOCAL; /* Enable receiver,Ignore Modem Control lines       */
+    serial.c_cflag &= ~CREAD;       /* No Hardware flow Control                         */
+    serial.c_cflag |= CLOCAL; /* Enable receiver,Ignore Modem Control lines       */
 
     serial.c_iflag &= ~(IXON | IXOFF | IXANY);         /* Disable XON/XOFF flow control both i/p and o/p */
     serial.c_iflag &= ~(ICANON | ECHO | ECHOE | ISIG); /* Non Cannonical mode                            */
