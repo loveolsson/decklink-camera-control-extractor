@@ -106,9 +106,9 @@ DeckLinkReceiver::DeckLinkReceiver(DLWrapper<IDeckLink> deckLink, ByteFifo &_fif
         return;
     }
 
-    if (this->wDeckLinkInput->StartStreams() != S_OK)
+    if (auto res = this->wDeckLinkInput->StartStreams() != S_OK)
     {
-        std::cout << "Failed to start video stream." << std::endl;
+        std::cout << "Failed to start video stream: " << res << std::endl;
     }
 }
 
