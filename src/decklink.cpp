@@ -153,6 +153,7 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
             // Send tally data every [tallyInterval], or if the data has changed
             if (tallyHasChanged || this->lastTallyUpdate + tallyInterval < now)
             {
+                this->lastTallyUpdate = now;
                 // To send tally data we create a fake packet conforming to the standard that we can
                 // strip on the receiving end
 
