@@ -2,11 +2,10 @@
 
 #include "serialoutput.h"
 
-#include <sys/fcntl.h>    // for open, O_NDELAY, O_NOCTTY, O_RDWR
-#include <sys/termios.h>  // for termios, cfmakeraw, cfsetispeed, cfsetospeed
-#include <unistd.h>       // for write, close
-#include <iostream>       // for operator<<, endl, basic_ostream, cout, ostream
-
+#include <sys/fcntl.h>   // for open, O_NDELAY, O_NOCTTY, O_RDWR
+#include <sys/termios.h> // for termios, cfmakeraw, cfsetispeed, cfsetospeed
+#include <unistd.h>      // for write, close
+#include <iostream>      // for operator<<, endl, basic_ostream, cout, ostream
 
 static uint8_t
 CRC(uint8_t *data, size_t length)
@@ -64,22 +63,31 @@ bool SerialOutput::Begin()
     cfsetospeed(&serial, (speed_t)baudrate);
     cfsetispeed(&serial, (speed_t)baudrate);
 
-    // Setting other Port Stuff
+    /* 8 bits, no parity, no stop bits */
     serial.c_cflag &= ~PARENB;
-    serial.c_cflag |= CS8; // 8 bits per byte (most common)
+    serial.c_cflag &= ~CSTOPB;
+    serial.c_cflag &= ~CSIZE;
+    serial.c_cflag |= CS8;
+    /* no hardware flow control */
     serial.c_cflag &= ~CRTSCTS;
-    serial.c_cflag |= CREAD | CLOCAL;
-    serial.c_lflag &= ~ICANON;
-    serial.c_lflag &= ~ECHO; // Disable echo
-    serial.c_lflag &= ~ECHOE; // Disable erasure
-    serial.c_lflag &= ~ECHONL; // Disable new-line echo
-    serial.c_lflag &= ~ISIG;
+    /* disable receiver, ignore status lines */
+    serial.c_cflag &= ~CREAD;
+    serial.c_cflag |= CLOCAL;
+    /* disable input/output flow control, disable restart chars */
     serial.c_iflag &= ~(IXON | IXOFF | IXANY);
-    serial.c_iflag &= ~(IGNBRK|BRKINT|PARMRK|ISTRIP|INLCR|IGNCR|ICRNL);
-    serial.c_oflag &= ~OPOST; // Prevent special interpretation of output bytes (e.g. newline chars)
-    serial.c_oflag &= ~ONLCR; // Prevent conversion of newline to carriage return/line feed
-    serial.c_cc[VTIME] = 10;    // Wait for up to 1s (10 deciseconds), returning as soon as any data is received.
-    serial.c_cc[VMIN] = 0;
+    /* disable canonical input, disable echo,
+        disable visually erase chars,
+        disable terminal-generated signals */
+    serial.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
+    /* disable output processing */
+    serial.c_oflag &= ~OPOST;
+
+    /* wait for 12 characters to come in before read returns */
+    /* WARNING! THIS CAUSES THE read() TO BLOCK UNTIL ALL */
+    /* CHARACTERS HAVE COME IN! */
+    serial.c_cc[VMIN] = 12;
+    /* no minimum time to wait before read returns */
+    serial.c_cc[VTIME] = 0;
 
     /* Make raw */
     cfmakeraw(&serial);
