@@ -17,7 +17,7 @@ DLWrapper<IDeckLink, true> GetDeckLinkByNameOrFirst(const char *name);
 class DeckLinkReceiver : public IDeckLinkInputCallback
 {
 public:
-    DeckLinkReceiver(DLWrapper<IDeckLink> deckLink, ByteFifo &_fifo);
+    DeckLinkReceiver(DLWrapper<IDeckLink> &deckLink, ByteFifo &_fifo);
     ~DeckLinkReceiver();
 
     HRESULT VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, IDeckLinkAudioInputPacket *audioPacket);

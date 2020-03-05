@@ -65,10 +65,10 @@ DLWrapper<IDeckLink, true> GetDeckLinkByNameOrFirst(const char *name)
     return nullptr;
 }
 
-DeckLinkReceiver::DeckLinkReceiver(DLWrapper<IDeckLink> deckLink, ByteFifo &_fifo)
+DeckLinkReceiver::DeckLinkReceiver(DLWrapper<IDeckLink> &deckLink, ByteFifo &_fifo)
     : fifo(_fifo), lastTallyUpdate(std::chrono::steady_clock::now())
 {
-    this->wDeckLinkInput = std::move(WRAPPED_FROM_IUNKNOWN(deckLink, IDeckLinkInput));
+    this->wDeckLinkInput = WRAPPED_FROM_IUNKNOWN(deckLink, IDeckLinkInput);
     if (!this->wDeckLinkInput)
     {
         std::cout << "DeckLink card has no input" << std::endl;
