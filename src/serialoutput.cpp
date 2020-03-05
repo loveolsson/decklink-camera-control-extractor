@@ -100,7 +100,7 @@ void SerialOutput::Write(uint8_t *data, size_t size)
         return;
     }
 
-    const uint8_t leadIn[] = {
+    uint8_t leadIn[] = {
         254,             // The receiver is looking for 3 bytes of 254 in a row to start parsing
         254,             //
         254,             //
