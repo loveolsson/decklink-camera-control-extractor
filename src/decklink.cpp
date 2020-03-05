@@ -92,7 +92,7 @@ DeckLinkReceiver::DeckLinkReceiver(DLWrapper<IDeckLink> deckLink, ByteFifo &_fif
         }
     }
 
-    if (this->wDeckLinkInput->SetCallback(this) != S_OK)
+    if (FAILED(this->wDeckLinkInput->SetCallback(this)))
     {
         std::cout << "Failed to set input callback." << std::endl;
         return;
@@ -100,15 +100,15 @@ DeckLinkReceiver::DeckLinkReceiver(DLWrapper<IDeckLink> deckLink, ByteFifo &_fif
 
     BMDPixelFormat format = requires10bit ? bmdFormat10BitYUV : bmdFormat8BitYUV;
 
-    if (auto res = this->wDeckLinkInput->EnableVideoInput(bmdModeNTSC, format, bmdVideoInputEnableFormatDetection) != S_OK)
+    if (FAILED(this->wDeckLinkInput->EnableVideoInput(bmdModeNTSC, format, bmdVideoInputEnableFormatDetection)))
     {
-        std::cout << "Failed to enable video stream: " << res << std::endl;
+        std::cout << "Failed to enable video stream: " << std::endl;
         return;
     }
 
-    if (auto res = this->wDeckLinkInput->StartStreams() != S_OK)
+    if (FAILED(this->wDeckLinkInput->StartStreams()))
     {
-        std::cout << "Failed to start video stream: " << res << std::endl;
+        std::cout << "Failed to start video stream: " << std::endl;
     }
 }
 
