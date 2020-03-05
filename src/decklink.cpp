@@ -38,22 +38,22 @@ static std::string GetString(OSString str)
 }
 #endif
 
-DLWrapper<IDeckLink, true> GetDeckLinkByNameOrFirst(const char *name)
+std::shared_ptr<DLWrapper<IDeckLink>> GetDeckLinkByNameOrFirst(const char *name)
 {
     IDeckLink *deckLink;
-    DLWrapper<IDeckLinkIterator, true> wIterator(CreateDeckLinkIteratorInstance());
+    auto wIterator = DLMakeShared(CreateDeckLinkIteratorInstance());
 
     if (!wIterator)
     {
         std::cout << "Could not initialize DeckLink driver." << std::endl;
-        return DLWrapper<IDeckLink, true>();
+        return nullptr;
     }
 
-    while (wIterator->Next(&deckLink) == S_OK)
+    while ((*wIterator)->Next(&deckLink) == S_OK)
     {
-        DLWrapper wDeckLink(deckLink);
+        auto wDeckLink = DLMakeShared(deckLink);
         OSString devName;
-        if (wDeckLink->GetDisplayName(&devName) == S_OK)
+        if ((*wDeckLink)->GetDisplayName(&devName) == S_OK)
         {
             if (GetString(devName) == name || strlen(name) == 0)
             {
@@ -62,10 +62,10 @@ DLWrapper<IDeckLink, true> GetDeckLinkByNameOrFirst(const char *name)
         }
     }
 
-    return DLWrapper<IDeckLink, true>();
+    return nullptr;
 }
 
-DeckLinkReceiver::DeckLinkReceiver(DLWrapper<IDeckLink> deckLink, ByteFifo &_fifo)
+DeckLinkReceiver::DeckLinkReceiver(std::shared_ptr<DLWrapper<IDeckLink>> deckLink, ByteFifo &_fifo)
     : fifo(_fifo), lastTallyUpdate(std::chrono::steady_clock::now()), wDeckLinkInput()
 {
     this->wDeckLinkInput = WRAPPED_FROM_IUNKNOWN(deckLink, IDeckLinkInput);
@@ -77,14 +77,14 @@ DeckLinkReceiver::DeckLinkReceiver(DLWrapper<IDeckLink> deckLink, ByteFifo &_fif
 
     {
         // Some legacy DeckLink cards can only capture VANC-data if the pixel format is 10bit
-        auto attr = WRAPPED_PRINT_FROM_IUNKNOWN(this->wDeckLinkInput, IDeckLinkProfileAttributes);
+        auto attr = WRAPPED_FROM_IUNKNOWN(this->wDeckLinkInput, IDeckLinkProfileAttributes);
         if (!attr)
         {
             std::cout << "Could not get IDeckLinkProfileAttributes." << std::endl;
             return;
         }
 
-        attr->GetFlag(BMDDeckLinkVANCRequires10BitYUVVideoFrames, &this->requires10bit);
+        (*attr)->GetFlag(BMDDeckLinkVANCRequires10BitYUVVideoFrames, &this->requires10bit);
 
         if (this->requires10bit)
         {
@@ -92,7 +92,7 @@ DeckLinkReceiver::DeckLinkReceiver(DLWrapper<IDeckLink> deckLink, ByteFifo &_fif
         }
     }
 
-    if (FAILED(this->wDeckLinkInput->SetCallback(this)))
+    if (FAILED((*this->wDeckLinkInput)->SetCallback(this)))
     {
         std::cout << "Failed to set input callback." << std::endl;
         return;
@@ -100,13 +100,13 @@ DeckLinkReceiver::DeckLinkReceiver(DLWrapper<IDeckLink> deckLink, ByteFifo &_fif
 
     BMDPixelFormat format = requires10bit ? bmdFormat10BitYUV : bmdFormat8BitYUV;
 
-    if (FAILED(this->wDeckLinkInput->EnableVideoInput(bmdModeNTSC, format, bmdVideoInputEnableFormatDetection)))
+    if (FAILED((*this->wDeckLinkInput)->EnableVideoInput(bmdModeNTSC, format, bmdVideoInputEnableFormatDetection)))
     {
         std::cout << "Failed to enable video stream." << std::endl;
         return;
     }
 
-    if (FAILED(this->wDeckLinkInput->StartStreams()))
+    if (FAILED((*this->wDeckLinkInput)->StartStreams()))
     {
         std::cout << "Failed to start video stream." << std::endl;
     }
@@ -117,8 +117,8 @@ DeckLinkReceiver::~DeckLinkReceiver()
     if (this->wDeckLinkInput)
     {
         std::cout << "Stopping input." << std::endl;
-        this->wDeckLinkInput->StopStreams();
-        this->wDeckLinkInput->FlushStreams();
+        (*this->wDeckLinkInput)->StopStreams();
+        (*this->wDeckLinkInput)->FlushStreams();
     }
 }
 
@@ -180,13 +180,14 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
 #endif
 
     // Check for camera control data
-    if (SUCCEEDED(packets->GetFirstPacketByID('Q', 'S', &packet)))
-    {
-        if (SUCCEEDED(packet->GetBytes(bmdAncillaryPacketFormatUInt8, (const void **)&data, &size)))
+    if (SUCCEEDED((*packets)->GetFirstPacketByID('Q', 'S', &packet)))
+    {   
+        auto wPacket = DLMakeShared(packet);
+
+        if (SUCCEEDED((*wPacket)->GetBytes(bmdAncillaryPacketFormatUInt8, (const void **)&data, &size)))
         {
             this->fifo.Push(data, size);
         }
-        packet->Release();
     }
 
     return S_OK;
@@ -207,10 +208,10 @@ DeckLinkReceiver::VideoInputFormatChanged(BMDVideoInputFormatChangedEvents notif
         const BMDPixelFormat format = this->requires10bit ? bmdFormat10BitYUV : bmdFormat8BitYUV;
 
         // We need to do this dance, bacause the VANC decoding doesn't start if the format is autodetected
-        this->wDeckLinkInput->StopStreams();
-        this->wDeckLinkInput->DisableVideoInput();
-        this->wDeckLinkInput->EnableVideoInput(newDisplayMode->GetDisplayMode(), format, bmdVideoInputEnableFormatDetection);
-        this->wDeckLinkInput->StartStreams();
+        (*this->wDeckLinkInput)->StopStreams();
+        (*this->wDeckLinkInput)->DisableVideoInput();
+        (*this->wDeckLinkInput)->EnableVideoInput(newDisplayMode->GetDisplayMode(), format, bmdVideoInputEnableFormatDetection);
+        (*this->wDeckLinkInput)->StartStreams();
     }
 
     return S_OK;

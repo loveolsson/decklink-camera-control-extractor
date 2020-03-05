@@ -4,10 +4,10 @@
 #include <iostream>
 #include <cxxabi.h>
 #include <string>
+#include <memory>
 
 #define IID_FROM_TYPE(x) IID_##x
 #define WRAPPED_FROM_IUNKNOWN(D, T) DLWrapper<T>::FromIUnknown(D, IID_FROM_TYPE(T))
-#define WRAPPED_PRINT_FROM_IUNKNOWN(D, T) DLWrapper<T, true>::FromIUnknown(D, IID_FROM_TYPE(T))
 #ifdef DISABLE_LOGGING
 static const bool enableLogging = false;
 #else
@@ -36,79 +36,42 @@ static std::string Demangle()
     return res;
 }
 
-template <typename T, bool Print = false>
+template <typename T>
+class DLWrapper;
+
+template <typename T>
+static std::shared_ptr<DLWrapper<T>> DLMakeShared(T *_item)
+{
+    if (!_item)
+    {
+        return nullptr;
+    }
+
+    return std::make_shared<DLWrapper<T>>(_item);
+}
+
+template <typename T>
 class DLWrapper
 {
 public:
-    DLWrapper()
-        : DLWrapper(nullptr)
-    {
-    }
-
-    // This is templated to accept to be set from a Wrapper with different PrintRelease
-    template <bool P>
-    DLWrapper(const DLWrapper<T, P> &_o)
-        : item(_o.Get())
-    {
-        if (this->item)
-        {
-            std::cout << Demangle<T>() << " copied." << std::endl;
-            this->item->AddRef();
-        }
-    }
-
-    template <bool P>
-    DLWrapper(DLWrapper<T, P> &&_o)
-        : item(_o.Detach())
-    {
-        if (this->item)
-        {
-            std::cout << Demangle<T>() << " moved." << std::endl;
-        }
-    }
-
     explicit DLWrapper(T *_item)
         : item(_item)
     {
-        if (this->item && (true || (Print && enableLogging)))
-        {
-            std::cout << "Wrapping: " << Demangle<T>() << " " << (uint64_t)this->item << std::endl;
-        }
+        std::cout << "Wrapping: " << Demangle<T>() << " " << (uint64_t)this->item << std::endl;
     }
 
     ~DLWrapper()
     {
+        std::cout << "Releasing: " << Demangle<T>() << " " << (uint64_t)this->item << std::endl;
         if (this->item)
         {
-            if (true || (Print && enableLogging))
-            {
-                std::cout << "Releasing: " << Demangle<T>() << " " << (uint64_t)this->item << std::endl;
-            }
-
             this->item->Release();
         }
-    }
-
-    explicit operator bool() const
-    {
-        return this->item != nullptr;
     }
 
     T *Get() const
     {
         return this->item;
-    }
-
-    T *Detach()
-    {
-        T* temp = nullptr;
-        std::swap(temp, this->item);
-
-        if (temp) {
-            std::cout << "Detach: " << Demangle<T>() << " " << (uint64_t)temp << ", after move " << (uint64_t)this->item << std::endl;
-        }
-
-        return temp;
     }
 
     T &operator*() const throw()
@@ -122,32 +85,35 @@ public:
     }
 
     // For use in conjunction with the WRAPPED_FROM_IUNKNOWN macro to spin up wrapped instances from a IUnknown query
-    static DLWrapper<T, Print> FromIUnknown(IUnknown *iface, REFIID iid)
+    static std::shared_ptr<DLWrapper<T>> FromIUnknown(IUnknown *iface, REFIID iid)
     {
         if (iface == nullptr)
         {
-            return DLWrapper<T, Print>();
+            return nullptr;
         }
 
         T *t;
         if (SUCCEEDED(iface->QueryInterface(iid, (void **)&t)))
         {
-            std::cout << "FromIUnknown(IUnknown): " << Demangle<T>() << " " << (uint64_t)t << std::endl;
-
-            return DLWrapper<T, Print>(t);
+            return DLMakeShared(t);
         }
 
-        return DLWrapper<T, Print>();
+        return nullptr;
     }
 
     // For use in conjunction with the WRAPPED_FROM_IUNKNOWN macro to spin up wrapped instances from a wrapped IUnknown
-    template <typename Q, bool P>
-    static DLWrapper<T, Print> FromIUnknown(DLWrapper<Q, P> &wIface, REFIID iid)
+    template <typename P>
+    static std::shared_ptr<DLWrapper<T>> FromIUnknown(std::shared_ptr<DLWrapper<P>> wIface, REFIID iid)
     {
-        std::cout << "FromIUnknown(DLWrapper<IUnknown>): " << Demangle<T>() << std::endl;
-        return DLWrapper<T, Print>::FromIUnknown(wIface.Get(), iid);
+        if (!wIface)
+        {
+            return nullptr;
+        }
+
+        return FromIUnknown(wIface.get()->Get(), iid);
     }
 
 private:
     T *item;
 };
+

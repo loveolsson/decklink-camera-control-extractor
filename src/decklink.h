@@ -12,12 +12,12 @@
 #include "CoreFoundation/CFPlugInCOM.h"
 #endif
 
-DLWrapper<IDeckLink, true> GetDeckLinkByNameOrFirst(const char *name);
+std::shared_ptr<DLWrapper<IDeckLink>> GetDeckLinkByNameOrFirst(const char *name);
 
 class DeckLinkReceiver : public IDeckLinkInputCallback
 {
 public:
-    DeckLinkReceiver(DLWrapper<IDeckLink> deckLink, ByteFifo &_fifo);
+    DeckLinkReceiver(std::shared_ptr<DLWrapper<IDeckLink>> deckLink, ByteFifo &_fifo);
     ~DeckLinkReceiver();
 
     HRESULT VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, IDeckLinkAudioInputPacket *audioPacket);
@@ -28,7 +28,7 @@ public:
     virtual ULONG Release() final;
 
 private:
-    DLWrapper<IDeckLinkInput, true> wDeckLinkInput;
+    std::shared_ptr<DLWrapper<IDeckLinkInput>> wDeckLinkInput;
     bool requires10bit;
     ByteFifo &fifo;
     std::vector<uint8_t> activeTallyData;

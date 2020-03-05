@@ -60,6 +60,13 @@
         "type_traits": "cpp",
         "unordered_map": "cpp",
         "utility": "cpp",
-        "vector": "cpp"
+        "vector": "cpp",
+        "__tree": "cpp",
+        "bit": "cpp",
+        "deque": "cpp",
+        "list": "cpp",
+        "map": "cpp",
+        "queue": "cpp",
+        "unordered_set": "cpp"
     }
 }
