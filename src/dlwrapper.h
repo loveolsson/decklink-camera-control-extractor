@@ -80,7 +80,7 @@ public:
     {
         if (this->item)
         {
-            if (Print && enableLogging || true)
+            if (this->item && (true || (Print && enableLogging)))
             {
                 std::cout << "Releasing: " << Demangle<T>() << std::endl;
             }
