@@ -135,12 +135,11 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
     const uint8_t *data;
     uint32_t size;
 
-#if 0
     // Check for tally data
-    if (false && SUCCEEDED(packets->GetFirstPacketByID('Q', 'R', &packet)))
+    if (SUCCEEDED((*packets)->GetFirstPacketByID('Q', 'R', &packet)))
     {
-        DLWrapper wPacket(packet);
-        if (packet->GetBytes(bmdAncillaryPacketFormatUInt8, (const void **)&data, &size) == S_OK)
+        auto wPacket = DLMakeShared(packet);
+        if ((*wPacket)->GetBytes(bmdAncillaryPacketFormatUInt8, (const void **)&data, &size) == S_OK)
         {
             std::vector<uint8_t> newTallyData(data, data + size);
             const auto now = std::chrono::steady_clock::now();
@@ -177,11 +176,10 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
             }
         }
     }
-#endif
 
     // Check for camera control data
     if (SUCCEEDED((*packets)->GetFirstPacketByID('Q', 'S', &packet)))
-    {   
+    {
         auto wPacket = DLMakeShared(packet);
 
         if (SUCCEEDED((*wPacket)->GetBytes(bmdAncillaryPacketFormatUInt8, (const void **)&data, &size)))
