@@ -108,10 +108,9 @@ void SerialOutput::Write(uint8_t *data, size_t size)
         CRC(data, size), // XOR CRC
     };
 
-    const char* str = "Hej";
 
     //attempt to send
-    if (write(fd, str, strlen(str)) < 0)
+    if (write(fd, leadIn, sizeof(leadIn)) < 0)
     {
         std::cout << "Failed to write lead-in" << std::endl;
         return;
