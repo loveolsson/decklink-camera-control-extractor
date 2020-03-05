@@ -63,31 +63,31 @@ bool SerialOutput::Begin()
     cfsetospeed(&serial, (speed_t)baudrate);
     cfsetispeed(&serial, (speed_t)baudrate);
 
-    /* 8 bits, no parity, no stop bits */
-    serial.c_cflag &= ~PARENB;
-    serial.c_cflag &= ~CSTOPB;
-    serial.c_cflag &= ~CSIZE;
-    serial.c_cflag |= CS8;
-    /* no hardware flow control */
-    serial.c_cflag &= ~CRTSCTS;
-    /* disable receiver, ignore status lines */
-    serial.c_cflag &= ~CREAD;
-    serial.c_cflag |= CLOCAL;
-    /* disable input/output flow control, disable restart chars */
-    serial.c_iflag &= ~(IXON | IXOFF | IXANY);
-    /* disable canonical input, disable echo,
-        disable visually erase chars,
-        disable terminal-generated signals */
-    serial.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
-    /* disable output processing */
-    serial.c_oflag &= ~OPOST;
+    // /* 8 bits, no parity, no stop bits */
+    // serial.c_cflag &= ~PARENB;
+    // serial.c_cflag &= ~CSTOPB;
+    // serial.c_cflag &= ~CSIZE;
+    // serial.c_cflag |= CS8;
+    // /* no hardware flow control */
+    // serial.c_cflag &= ~CRTSCTS;
+    // /* disable receiver, ignore status lines */
+    // serial.c_cflag &= ~CREAD;
+    // serial.c_cflag |= CLOCAL;
+    // /* disable input/output flow control, disable restart chars */
+    // serial.c_iflag &= ~(IXON | IXOFF | IXANY);
+    // /* disable canonical input, disable echo,
+    //     disable visually erase chars,
+    //     disable terminal-generated signals */
+    // serial.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
+    // /* disable output processing */
+    // serial.c_oflag &= ~OPOST;
 
-    /* wait for 12 characters to come in before read returns */
-    /* WARNING! THIS CAUSES THE read() TO BLOCK UNTIL ALL */
-    /* CHARACTERS HAVE COME IN! */
-    serial.c_cc[VMIN] = 12;
-    /* no minimum time to wait before read returns */
-    serial.c_cc[VTIME] = 0;
+    // /* wait for 12 characters to come in before read returns */
+    // /* WARNING! THIS CAUSES THE read() TO BLOCK UNTIL ALL */
+    // /* CHARACTERS HAVE COME IN! */
+    // serial.c_cc[VMIN] = 12;
+    // /* no minimum time to wait before read returns */
+    // serial.c_cc[VTIME] = 0;
 
     /* Make raw */
     cfmakeraw(&serial);
