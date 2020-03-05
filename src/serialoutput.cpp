@@ -52,7 +52,7 @@ bool SerialOutput::Begin()
     }
 
     //struct termios
-    termios serial;
+    termios serial = {0};
 
     //get parameters associated with the terminal
     if (tcgetattr(fd, &serial) < 0)
@@ -65,14 +65,21 @@ bool SerialOutput::Begin()
     cfsetispeed(&serial, (speed_t)baudrate);
 
     // Setting other Port Stuff
-    serial.c_cflag &= ~PARENB;        // Make 8n1
-    serial.c_cflag &= ~CSTOPB;        //
-    serial.c_cflag &= ~CSIZE;         //
-    serial.c_cflag |= CS8;            //
-    serial.c_cflag &= ~CRTSCTS;       // no flow control
-    serial.c_cc[VMIN] = 1;            // read doesn't block
-    serial.c_cc[VTIME] = 5;           // 0.5 seconds read timeout
-    serial.c_cflag |= CREAD | CLOCAL; // turn on READ & ignore ctrl lines
+    serial.c_cflag &= ~PARENB;
+    serial.c_cflag |= CS8; // 8 bits per byte (most common)
+    serial.c_cflag &= ~CRTSCTS;
+    serial.c_cflag |= CREAD | CLOCAL;
+    serial.c_lflag &= ~ICANON;
+    serial.c_lflag &= ~ECHO; // Disable echo
+    serial.c_lflag &= ~ECHOE; // Disable erasure
+    serial.c_lflag &= ~ECHONL; // Disable new-line echo
+    serial.c_lflag &= ~ISIG;
+    serial.c_iflag &= ~(IXON | IXOFF | IXANY);
+    serial.c_iflag &= ~(IGNBRK|BRKINT|PARMRK|ISTRIP|INLCR|IGNCR|ICRNL);
+    serial.c_oflag &= ~OPOST; // Prevent special interpretation of output bytes (e.g. newline chars)
+    serial.c_oflag &= ~ONLCR; // Prevent conversion of newline to carriage return/line feed
+    serial.c_cc[VTIME] = 10;    // Wait for up to 1s (10 deciseconds), returning as soon as any data is received.
+    serial.c_cc[VMIN] = 0;
 
     /* Make raw */
     cfmakeraw(&serial);
