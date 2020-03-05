@@ -64,18 +64,23 @@ bool SerialOutput::Begin()
     cfsetospeed(&serial, (speed_t)baudrate);
     cfsetispeed(&serial, (speed_t)baudrate);
 
-    /* 8 bits, no parity, no stop bits */
-    serial.c_cflag &= ~PARENB;
-    serial.c_cflag &= ~CSTOPB;
-    serial.c_cflag &= ~CSIZE;
-    serial.c_cflag |= CS8;
-    /* Canonical mode */
-    serial.c_lflag |= ICANON;
+    /* 8N1 Mode */
+    serial.c_cflag &= ~PARENB; /* Disables the Parity Enable bit(PARENB),So No Parity   */
+    serial.c_cflag &= ~CSTOPB; /* CSTOPB = 2 Stop bits,here it is cleared so 1 Stop bit */
+    serial.c_cflag &= ~CSIZE;  /* Clears the mask for setting the data size             */
+    serial.c_cflag |= CS8;     /* Set the data bits = 8                                 */
+
+    serial.c_cflag &= ~CRTSCTS;       /* No Hardware flow Control                         */
+    serial.c_cflag |= CREAD | CLOCAL; /* Enable receiver,Ignore Modem Control lines       */
+
+    serial.c_iflag &= ~(IXON | IXOFF | IXANY);         /* Disable XON/XOFF flow control both i/p and o/p */
+    serial.c_iflag &= ~(ICANON | ECHO | ECHOE | ISIG); /* Non Cannonical mode                            */
+
     serial.c_oflag &= ~OPOST; /*No Output Processing*/
 
-    /* Flush Port, then applies attributes */
-    tcflush(this->fd, TCIFLUSH);
-
+    /* Setting Time outs */
+    serial.c_cc[VMIN] = 10; /* Read at least 10 characters */
+    serial.c_cc[VTIME] = 0; /* Wait indefinetly   */
     //set attributes to port
     if (tcsetattr(this->fd, TCSANOW, &serial) < 0)
     {
