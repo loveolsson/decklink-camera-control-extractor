@@ -78,7 +78,9 @@ bool SerialOutput::Begin()
     serial.c_iflag &= ~(IXON | IXOFF | IXANY);         /* Disable XON/XOFF flow control both i/p and o/p */
     serial.c_iflag &= ~(ICANON | ECHO | ECHOE | ISIG); /* Non Cannonical mode                            */
 
-    serial.c_oflag &= ~OPOST; /*No Output Processing*/
+    //serial.c_oflag &= ~OPOST; /*No Output Processing*/
+    serial.c_oflag &= ~(OPOST|OLCUC|ONLCR|OCRNL|ONLRET|OFDEL);
+
 
     /* Setting Time outs */
     serial.c_cc[VMIN] = 10; /* Read at least 10 characters */
