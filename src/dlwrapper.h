@@ -70,7 +70,7 @@ public:
     explicit DLWrapper(T *_item)
         : item(_item)
     {
-        if (this->item && true || (Print && enableLogging))
+        if ((this->item && true) || (Print && enableLogging))
         {
             std::cout << "Wrapping: " << Demangle<T>() << std::endl;
         }
