@@ -1,5 +1,18 @@
 #include "decklink.h"
+#include "defines.h"
+
+#include <stdlib.h>
+#include <algorithm>
+#include <cstdint>
 #include <iostream>
+#include <string>
+#include <string.h>
+#include <ratio>
+
+#ifdef MAC
+#include "CoreFoundation/CFBase.h"
+#include "CoreFoundation/CFString.h"
+#endif
 
 static constexpr auto tallyInterval = std::chrono::seconds(1);
 
@@ -25,9 +38,9 @@ static std::string GetString(OSString str)
 }
 #endif
 
-DLWrapper<IDeckLink> GetDeckLinkByNameOrFirst(const std::string &name)
+DLWrapper<IDeckLink, true> GetDeckLinkByNameOrFirst(const char *name)
 {
-    IDeckLink *deckLink = nullptr;
+    IDeckLink *deckLink;
     DLWrapper<IDeckLinkIterator, true> wIterator(CreateDeckLinkIteratorInstance());
 
     if (!wIterator)
@@ -38,11 +51,11 @@ DLWrapper<IDeckLink> GetDeckLinkByNameOrFirst(const std::string &name)
 
     while (wIterator->Next(&deckLink) == S_OK)
     {
-        DLWrapper<IDeckLink> wDeckLink(deckLink);
+        DLWrapper wDeckLink(deckLink);
         OSString devName;
-        if (deckLink->GetDisplayName(&devName) == S_OK)
+        if (wDeckLink->GetDisplayName(&devName) == S_OK)
         {
-            if (name == GetString(devName) || name.empty())
+            if (GetString(devName) == name || strlen(name) == 0)
             {
                 return wDeckLink;
             }
@@ -64,7 +77,7 @@ DeckLinkReceiver::DeckLinkReceiver(DLWrapper<IDeckLink> deckLink, ByteFifo &_fif
 
     {
         // Some legacy DeckLink cards can only capture VANC-data if the pixel format is 10bit
-        auto attr = WRAPPED_FROM_IUNKNOWN(this->wDeckLinkInput, IDeckLinkProfileAttributes);
+        auto attr = WRAPPED_PRINT_FROM_IUNKNOWN(this->wDeckLinkInput, IDeckLinkProfileAttributes);
         if (!attr)
         {
             std::cout << "Could not get IDeckLinkProfileAttributes." << std::endl;
@@ -125,17 +138,16 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
     // Check for tally data
     if (packets->GetFirstPacketByID('Q', 'R', &packet) == S_OK)
     {
-        DLWrapper<IDeckLinkAncillaryPacket> wPacket(packet);
+        DLWrapper wPacket(packet);
         if (packet->GetBytes(bmdAncillaryPacketFormatUInt8, (const void **)&data, &size) == S_OK)
         {
-            const std::vector<uint8_t> newTallyData(data, data + size);
+            std::vector<uint8_t> newTallyData(data, data + size);
             const auto now = std::chrono::steady_clock::now();
 
-            bool tallyHasChanged = false;
-            if (this->activeTallyData != newTallyData)
+            const bool tallyHasChanged = this->activeTallyData != newTallyData;
+            if (tallyHasChanged)
             {
-                this->activeTallyData = newTallyData;
-                tallyHasChanged = true;
+                this->activeTallyData.swap(newTallyData);
             }
 
             // Send tally data every [tallyInterval], or if the data has changed
@@ -159,7 +171,6 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
                     std::copy(this->activeTallyData.begin(), this->activeTallyData.end(), pkt.data);
 
                     const size_t totalSize = sizeof(Header) + PADDING(pkt.header.len);
-
                     this->fifo.Push((uint8_t *)&pkt, totalSize);
                 }
             }
@@ -169,7 +180,7 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
     // Check for camera control data
     if (packets->GetFirstPacketByID('Q', 'S', &packet) == S_OK)
     {
-        DLWrapper<IDeckLinkAncillaryPacket> wPacket(packet);
+        DLWrapper wPacket(packet);
         if (packet->GetBytes(bmdAncillaryPacketFormatUInt8, (const void **)&data, &size) == S_OK)
         {
             this->fifo.Push(data, size);

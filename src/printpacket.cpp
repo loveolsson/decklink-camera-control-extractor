@@ -1,9 +1,11 @@
 #include "printpacket.h"
-#include "commands.h"
+#include "commands.h"  // for GetCommandFromData, Command
+#include "defines.h"   // for Packet, Header, CommandInfo
 
-#include <iostream>
+#include <iomanip>     // for operator<<, setw
+#include <iostream>    // for operator<<, basic_ostream, cout, ostream, stri...
+#include <string>      // for char_traits
 #include <sstream>
-#include <iomanip>
 
 void PrintPacket(Packet &pkt)
 {

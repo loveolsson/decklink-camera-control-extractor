@@ -20,15 +20,17 @@ static std::string Demangle()
     // Returns an demangled version of the type name, or the mangled version if that call fails.
     std::string res = typeid(T).name();
 
-    size_t size = 64;
     int status;
-    char *out = (char *)malloc(size);
+    char *c_str = abi::__cxa_demangle(res.c_str(), nullptr, nullptr, &status);
 
-    char *c_str = abi::__cxa_demangle(res.c_str(), out, &size, &status);
-
-    if (c_str != nullptr && status == 0)
+    if (status == 0)
     {
         res = c_str;
+    }
+
+    if (c_str != nullptr)
+    {
+        free(c_str);
     }
 
     return res;
@@ -43,8 +45,7 @@ public:
     {
         if (this->item && Print && enableLogging)
         {
-            std::string name = Demangle<T>();
-            std::cout << "Wrapping: " << name << std::endl;
+            std::cout << "Wrapping: " << Demangle<T>() << std::endl;
         }
     }
 
@@ -56,11 +57,21 @@ public:
     // This is templated to accept to be set from a Wrapper with different PrintRelease
     template <bool P>
     DLWrapper(const DLWrapper<T, P> &_o)
-        : DLWrapper(_o.Get())
+        : item(_o.Get())
     {
         if (this->item)
         {
+            std::cout << Demangle<T>() << " copied." << std::endl;
             this->item->AddRef();
+        }
+    }
+
+    template <bool P>
+    DLWrapper(DLWrapper<T, P> &&_o)
+        : item(_o.Detach())
+    {
+        if (this->item) {
+            std::cout << Demangle<T>() << " moved." << std::endl;
         }
     }
 
@@ -68,10 +79,9 @@ public:
     {
         if (this->item)
         {
-            if (Print && enableLogging)
+            if (Print && enableLogging || true)
             {
-                std::string name = Demangle<T>();
-                std::cout << "Releasing: " << name << std::endl;
+                std::cout << "Releasing: " << Demangle<T>() << std::endl;
             }
 
             this->item->Release();
@@ -83,16 +93,24 @@ public:
         return this->item != nullptr;
     }
 
-    T *Get() const {
+    T *Get() const
+    {
         return this->item;
     }
 
-    T& operator*() const throw()
+    T *Detach()
+    {
+        T *temp = this->item;
+        this->item = nullptr;
+        return temp;
+    }
+
+    T &operator*() const throw()
     {
         return *this->item;
     }
 
-    T* operator->() const throw()
+    T *operator->() const throw()
     {
         return this->item;
     }
@@ -122,5 +140,5 @@ public:
     }
 
 private:
-    T *item; 
+    T *item;
 };

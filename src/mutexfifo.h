@@ -1,5 +1,4 @@
 #pragma once
-#include <cstring>
 #include <mutex>
 #include <algorithm>
 
@@ -22,9 +21,7 @@ public:
       const size_t leftBeforeWrap = S - this->writeHead;
       const size_t itemsToWrite = std::min(itemsLeft, leftBeforeWrap);
 
-      //printf("itemsToPush: %i WriteHead: %i, S: %i\n", itemsToWrite, this->writeHead);
-
-      memcpy(&this->queue[this->writeHead], data, sizeof(T) * itemsToWrite);
+      std::copy(data, data + itemsToWrite, this->queue + this->writeHead);
 
       itemsLeft -= itemsToWrite;
       this->itemCount += itemsToWrite;
@@ -52,9 +49,8 @@ public:
       const size_t leftBeforeWrap = S - this->readHead;
       const size_t itemsToRead = std::min(itemsLeft, leftBeforeWrap);
 
-      //printf("itemsToPop: %i ReadHead: %i\n", itemsToRead, this->readHead);
-
-      memcpy(data, &this->queue[this->readHead], sizeof(T) * itemsToRead);
+      const uint8_t* readStart = &this->queue[readHead];
+      std::copy(readStart, readStart + itemsToRead, data);
 
       itemsLeft -= itemsToRead;
       this->itemCount -= itemsToRead;
@@ -83,9 +79,8 @@ public:
       const size_t leftBeforeWrap = S - tempReadHead;
       const size_t itemsToRead = std::min(itemsLeft, leftBeforeWrap);
 
-      //printf("itemsToPeek: %i, ReadHead: %i\n", itemsToRead, tempReadHead);
-
-      memcpy(data, &this->queue[tempReadHead], sizeof(T) * itemsToRead);
+      const uint8_t* readStart = &this->queue[readHead];
+      std::copy(readStart, readStart + itemsToRead, data);
 
       itemsLeft -= itemsToRead;
       tempReadHead = (tempReadHead + itemsToRead) % S;

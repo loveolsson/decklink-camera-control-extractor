@@ -1,14 +1,18 @@
 #pragma once
+#include "dlwrapper.h"
+#include "mutexfifo.h"
 
 #include "include/DeckLinkAPI.h"
-#include "mutexfifo.h"
-#include "defines.h"
-#include "dlwrapper.h"
 
-#include <vector>
+#include <stdint.h>
 #include <chrono>
+#include <vector>
 
-DLWrapper<IDeckLink> GetDeckLinkByNameOrFirst(const std::string &name);
+#ifdef MAC
+#include "CoreFoundation/CFPlugInCOM.h"
+#endif
+
+DLWrapper<IDeckLink, true> GetDeckLinkByNameOrFirst(const char *name);
 
 class DeckLinkReceiver : public IDeckLinkInputCallback
 {

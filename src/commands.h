@@ -1,5 +1,6 @@
 #pragma once
-#include "defines.h"
+
+struct CommandInfo;
 
 struct Command
 {

@@ -1,5 +1,7 @@
 #include "commands.h"
-#include <cstddef>
+#include "defines.h"  // for NUM, CommandInfo
+
+#include <stdint.h>   // for uint8_t
 
 struct CommandGroup
 {

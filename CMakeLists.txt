@@ -1,8 +1,8 @@
-cmake_minimum_required(VERSION 3.2.2)
+cmake_minimum_required(VERSION 3.9)
 
 # set the project name
 project(DeckLinkCameraControl)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -19,6 +19,8 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 	if (NOT CORE_FOUNDATION)
 		message(FATAL_ERROR "CoreFoundation not found")
 	endif()
+	SET(CPACK_GENERATOR "productbuild")
+	SET(CPACK_PRODUCTBUILD_BACKGROUND "")
 else()
 	include_directories(
 		3rdParty/linux/
@@ -29,8 +31,11 @@ else()
 	)
 
 	add_compile_definitions(LINUX)
+	SET(CPACK_GENERATOR "DEB")
+	SET(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+	SET(CPACK_DEBIAN_PACKAGE_GENERATE_SHLIBS ON)
+	SET(CPACK_DEBIAN_PACKAGE_DEPENDS "")
 endif()
-
 
 file(GLOB SOURCES
 	src/serialoutput.h
@@ -50,3 +55,8 @@ file(GLOB SOURCES
 # add the executable
 add_executable(DeckLinkCameraControl ${SOURCES} ${OS_SOURCES})
 target_link_libraries(DeckLinkCameraControl pthread ${CMAKE_DL_LIBS} ${CORE_FOUNDATION})
+set_property(TARGET DeckLinkCameraControl PROPERTY INTERPROCEDURAL_OPTIMIZATION ON)
+
+install(TARGETS DeckLinkCameraControl DESTINATION bin)
+
+INCLUDE(CPack)

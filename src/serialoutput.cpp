@@ -1,12 +1,12 @@
 // Stolen in parts from https://stackoverflow.com/questions/31663776/ubuntu-c-termios-h-example-program
 
 #include "serialoutput.h"
-#include <termios.h>
-#include <iostream>
-#include <string>
-#include <cstring>
-#include <fcntl.h>
-#include <unistd.h>
+
+#include <sys/fcntl.h>    // for open, O_NDELAY, O_NOCTTY, O_RDWR
+#include <sys/termios.h>  // for termios, cfmakeraw, cfsetispeed, cfsetospeed
+#include <unistd.h>       // for write, close
+#include <iostream>       // for operator<<, endl, basic_ostream, cout, ostream
+
 
 static uint8_t
 CRC(uint8_t *data, size_t length)
@@ -21,7 +21,7 @@ CRC(uint8_t *data, size_t length)
     return sum;
 }
 
-SerialOutput::SerialOutput(const std::string &_deviceName, int _baudRate)
+SerialOutput::SerialOutput(const char *_deviceName, int _baudRate)
     : deviceName(_deviceName), baudrate(_baudRate)
 {
 }
@@ -44,7 +44,7 @@ SerialOutput::~SerialOutput()
 
 bool SerialOutput::Begin()
 {
-    this->fd = open(this->deviceName.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
+    this->fd = open(this->deviceName, O_RDWR | O_NOCTTY | O_NDELAY);
     if (this->fd < 0)
     {
         std::cout << "Error [serial_communcation]: opening Port: " << this->deviceName << std::endl;

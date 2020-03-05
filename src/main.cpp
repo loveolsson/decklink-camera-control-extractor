@@ -2,10 +2,18 @@
 #include "mutexfifo.h"
 #include "printpacket.h"
 #include "serialoutput.h"
+#include "defines.h"              // for Packet, Header, PADDING
+#include "dlwrapper.h"            // for DLWrapper
 
+#include "include/DeckLinkAPI.h"  // for IDeckLink
+
+#include <stdint.h>               // for uint8_t
+#include <stdlib.h>               // for EXIT_FAILURE, EXIT_SUCCESS, size_t
+#include <sys/signal.h>           // for signal, SIGINT
+#include <exception>              // for exception
+#include <string>                 // for stoi
 #include <chrono>
 #include <thread>
-#include <signal.h>
 #include <iostream>
 
 static volatile int keepRunning = 1;
@@ -32,23 +40,17 @@ int main(int argc, char *argv[])
 
 	int baudRate = 19200;
 
-	std::vector<std::string> args;
-	for (int i = 1; i < argc; ++i)
-	{
-		args.push_back(argv[i]);
-	}
-
-	if (args.empty() || args.size() > 3)
+	if (argc < 2 || argc > 4)
 	{
 		PrintUsage();
 		return EXIT_FAILURE;
 	}
 
-	if (args.size() > 1)
+	if (argc > 2)
 	{
 		try
 		{
-			baudRate = std::stoi(args[1]);
+			baudRate = std::stoi(argv[2]);
 		}
 		catch (const std::exception &)
 		{
@@ -58,18 +60,18 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	SerialOutput serialOutput(args[0], baudRate);
+	SerialOutput serialOutput(argv[1], baudRate);
 	if (!serialOutput.Begin())
 	{
-		std::cout << "Failed to open serial device: " << args[0] << std::endl;
+		std::cout << "Failed to open serial device: " << argv[1] << std::endl;
 		PrintUsage();
 		return EXIT_FAILURE;
 	}
 
 	std::cout << "Searching for DeckLink cards..." << std::endl;
 
-	std::string deckLinkName = args.size() == 3 ? args[2] : "";
-	DLWrapper<IDeckLink, true> wDeckLink(GetDeckLinkByNameOrFirst(deckLinkName));
+	const char* deckLinkName = argc == 4 ? argv[3] : "";
+	auto wDeckLink = GetDeckLinkByNameOrFirst(deckLinkName);
 	if (!wDeckLink)
 	{
 		std::cout << "Found no DeckLink cards... exiting." << std::endl;
@@ -85,14 +87,13 @@ int main(int argc, char *argv[])
 	{
 		bool gotJobDone = false;
 
-		if (fifo.Peek((uint8_t *)&pkt.header, sizeof(Header)) != 0)
+		if (fifo.Pop((uint8_t *)&pkt.header, sizeof(Header)) != 0)
 		{
-			const size_t totalLength = sizeof(Header) + PADDING(pkt.header.len);
-
-			if (fifo.Pop((uint8_t *)&pkt, totalLength) != 0)
+			if (fifo.Pop((uint8_t *)&pkt.commandInfo, PADDING(pkt.header.len)) != 0)
 			{
 				gotJobDone = true;
 
+				const size_t totalLength = sizeof(Header) + pkt.header.len;
 				serialOutput.Write((uint8_t *)&pkt, totalLength);
 				PrintPacket(pkt);
 			}
