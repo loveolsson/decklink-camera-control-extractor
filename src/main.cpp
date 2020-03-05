@@ -93,9 +93,11 @@ int main(int argc, char *argv[])
 			{
 				gotJobDone = true;
 
-				const size_t totalLength = sizeof(Header) + pkt.header.len;
-				serialOutput.Write((uint8_t *)&pkt, totalLength);
-				PrintPacket(pkt);
+				if (pkt.header.dest == 1 || pkt.header.dest == 255) {
+					const size_t totalLength = sizeof(Header) + pkt.header.len;
+					serialOutput.Write((uint8_t *)&pkt, totalLength);
+					PrintPacket(pkt);
+				}
 			}
 			else
 			{
