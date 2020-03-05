@@ -72,7 +72,7 @@ public:
     {
         if ((this->item && true) || (Print && enableLogging))
         {
-            std::cout << "Wrapping: " << Demangle<T>() << std::endl;
+            std::cout << "Wrapping: " << Demangle<T>() << " " << (uint64_t)this->item << std::endl;
         }
     }
 
