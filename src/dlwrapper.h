@@ -105,8 +105,7 @@ public:
             std::cout << "Detach: " << Demangle<T>() << " " << (uint64_t)this->item << std::endl;
         }
 
-
-        T *temp = this->item;
+        auto temp = this->item;
         this->item = nullptr;
         return temp;
     }
@@ -132,6 +131,8 @@ public:
         T *t;
         if (SUCCEEDED(iface->QueryInterface(iid, (void **)&t)))
         {
+            std::cout << "FromIUnknown(IUnknown): " << Demangle<T>() << " " << (uint64_t)this->item << std::endl;
+
             return DLWrapper<T, Print>(t);
         }
 
@@ -142,6 +143,7 @@ public:
     template <typename Q, bool P>
     static DLWrapper<T, Print> FromIUnknown(DLWrapper<Q, P> &wIface, REFIID iid)
     {
+        std::cout << "FromIUnknown(DLWrapper<IUnknown>): " << Demangle<T>() << " " << (uint64_t)this->item << std::endl;
         return DLWrapper<T, Print>::FromIUnknown(wIface.Get(), iid);
     }
 
