@@ -68,7 +68,7 @@ DLWrapper<IDeckLink, true> GetDeckLinkByNameOrFirst(const char *name)
 DeckLinkReceiver::DeckLinkReceiver(DLWrapper<IDeckLink> deckLink, ByteFifo &_fifo)
     : fifo(_fifo), lastTallyUpdate(std::chrono::steady_clock::now())
 {
-    this->wDeckLinkInput = WRAPPED_FROM_IUNKNOWN(deckLink, IDeckLinkInput);
+    this->wDeckLinkInput = std::move(WRAPPED_FROM_IUNKNOWN(deckLink, IDeckLinkInput));
     if (!this->wDeckLinkInput)
     {
         std::cout << "DeckLink card has no input" << std::endl;
@@ -182,7 +182,7 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
     // Check for camera control data
     if (SUCCEEDED(packets->GetFirstPacketByID('Q', 'S', &packet)))
     {
-        if (packet->GetBytes(bmdAncillaryPacketFormatUInt8, (const void **)&data, &size) == S_OK)
+        if (SUCCEEDED(packet->GetBytes(bmdAncillaryPacketFormatUInt8, (const void **)&data, &size)))
         {
             this->fifo.Push(data, size);
         }

@@ -124,7 +124,7 @@ public:
         }
 
         T *t;
-        if (iface->QueryInterface(iid, (void **)&t) == S_OK)
+        if (SUCCEEDED(iface->QueryInterface(iid, (void **)&t)))
         {
             return t;
         }
