@@ -82,7 +82,7 @@ public:
         {
             if (this->item && (true || (Print && enableLogging)))
             {
-                std::cout << "Releasing: " << Demangle<T>() << std::endl;
+                std::cout << "Releasing: " << Demangle<T>() << " " << (uint64_t)this->item << std::endl;
             }
 
             this->item->Release();
