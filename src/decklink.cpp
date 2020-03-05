@@ -182,11 +182,11 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
     // Check for camera control data
     if (SUCCEEDED(packets->GetFirstPacketByID('Q', 'S', &packet)))
     {
-        DLWrapper wPacket(packet);
         if (packet->GetBytes(bmdAncillaryPacketFormatUInt8, (const void **)&data, &size) == S_OK)
         {
             this->fifo.Push(data, size);
         }
+        packet->Release();
     }
 
     return S_OK;
