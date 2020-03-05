@@ -101,13 +101,13 @@ public:
 
     T *Detach()
     {
-        if (this->item) {
-            std::cout << "Detach: " << Demangle<T>() << " " << (uint64_t)this->item << std::endl;
-        }
-
         auto temp = this->item;
         this->item = nullptr;
         return temp;
+
+        if (this->item) {
+            std::cout << "Detach: " << Demangle<T>() << " " << (uint64_t)temp << ", after move " << (uint64_t)this->item << std::endl;
+        }
     }
 
     T &operator*() const throw()
