@@ -100,9 +100,9 @@ DeckLinkReceiver::DeckLinkReceiver(DLWrapper<IDeckLink> deckLink, ByteFifo &_fif
 
     BMDPixelFormat format = requires10bit ? bmdFormat10BitYUV : bmdFormat8BitYUV;
 
-    if (FAILED(auto res = this->wDeckLinkInput->EnableVideoInput(bmdModeNTSC, format, bmdVideoInputEnableFormatDetection)))
+    if (FAILED(this->wDeckLinkInput->EnableVideoInput(bmdModeNTSC, format, bmdVideoInputEnableFormatDetection)))
     {
-        std::cout << "Failed to enable video stream." <<res << std::endl;
+        std::cout << "Failed to enable video stream." << std::endl;
         return;
     }
 
@@ -136,7 +136,7 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
     uint32_t size;
 
     // Check for tally data
-    if (packets->GetFirstPacketByID('Q', 'R', &packet) == S_OK)
+    if (false && packets->GetFirstPacketByID('Q', 'R', &packet) == S_OK)
     {
         DLWrapper wPacket(packet);
         if (packet->GetBytes(bmdAncillaryPacketFormatUInt8, (const void **)&data, &size) == S_OK)
