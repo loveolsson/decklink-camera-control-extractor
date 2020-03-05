@@ -6,6 +6,7 @@
 #include <sys/termios.h> // for termios, cfmakeraw, cfsetispeed, cfsetospeed
 #include <unistd.h>      // for write, close
 #include <iostream>      // for operator<<, endl, basic_ostream, cout, ostream
+#include <thread>      // for operator<<, endl, basic_ostream, cout, ostream
 
 static uint8_t
 CRC(uint8_t *data, size_t length)
@@ -112,4 +113,7 @@ void SerialOutput::Write(uint8_t *data, size_t size)
     //     std::cout << "Failed to write packet" << std::endl;
     //     return;
     // }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
 }
