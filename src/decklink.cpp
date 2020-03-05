@@ -14,7 +14,7 @@
 #include "CoreFoundation/CFString.h"
 #endif
 
-static constexpr auto tallyInterval = std::chrono::seconds(1);
+static constexpr auto tallyInterval = std::chrono::seconds(5);
 
 #ifdef MACOS
 typedef CFStringRef OSString;
