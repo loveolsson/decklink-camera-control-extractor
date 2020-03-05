@@ -44,7 +44,7 @@ SerialOutput::~SerialOutput()
 
 bool SerialOutput::Begin()
 {
-    this->fd = open(this->deviceName, O_RDWR | /*O_NOCTTY |*/ O_NDELAY);
+    this->fd = open(this->deviceName, O_RDWR | O_NOCTTY | O_NDELAY);
     if (this->fd < 0)
     {
         std::cout << "Error [serial_communcation]: opening Port: " << this->deviceName << std::endl;
@@ -71,6 +71,8 @@ bool SerialOutput::Begin()
     serial.c_cflag |= CS8;
     /* Canonical mode */
     serial.c_lflag |= ICANON;
+    serial.c_oflag &= ~ONLCR;
+
 
     /* Flush Port, then applies attributes */
     tcflush(this->fd, TCIFLUSH);
