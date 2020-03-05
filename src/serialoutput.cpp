@@ -127,10 +127,10 @@ void SerialOutput::Write(uint8_t *data, size_t size)
         return;
     }
 
-    //attempt to send
-    if (write(fd, data, size) < 0)
-    {
-        std::cout << "Failed to write packet" << std::endl;
-        return;
-    }
+    // //attempt to send
+    // if (write(fd, data, size) < 0)
+    // {
+    //     std::cout << "Failed to write packet" << std::endl;
+    //     return;
+    // }
 }
