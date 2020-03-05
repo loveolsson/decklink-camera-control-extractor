@@ -131,7 +131,7 @@ public:
         T *t;
         if (SUCCEEDED(iface->QueryInterface(iid, (void **)&t)))
         {
-            std::cout << "FromIUnknown(IUnknown): " << Demangle<T>() << " " << (uint64_t)this->item << std::endl;
+            std::cout << "FromIUnknown(IUnknown): " << Demangle<T>() << " " << (uint64_t)t << std::endl;
 
             return DLWrapper<T, Print>(t);
         }
@@ -143,7 +143,7 @@ public:
     template <typename Q, bool P>
     static DLWrapper<T, Print> FromIUnknown(DLWrapper<Q, P> &wIface, REFIID iid)
     {
-        std::cout << "FromIUnknown(DLWrapper<IUnknown>): " << Demangle<T>() << " " << (uint64_t)this->item << std::endl;
+        std::cout << "FromIUnknown(DLWrapper<IUnknown>): " << Demangle<T>() << std::endl;
         return DLWrapper<T, Print>::FromIUnknown(wIface.Get(), iid);
     }
 
