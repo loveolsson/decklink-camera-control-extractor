@@ -40,15 +40,6 @@ template <typename T, bool Print = false>
 class DLWrapper
 {
 public:
-    DLWrapper(T *_item)
-        : item(_item)
-    {
-        if (this->item && true || (Print && enableLogging))
-        {
-            std::cout << "Wrapping: " << Demangle<T>() << std::endl;
-        }
-    }
-
     DLWrapper()
         : DLWrapper(nullptr)
     {
@@ -74,6 +65,16 @@ public:
             std::cout << Demangle<T>() << " moved." << std::endl;
         }
     }
+
+    DLWrapper(T *_item)
+        : item(_item)
+    {
+        if (this->item && true || (Print && enableLogging))
+        {
+            std::cout << "Wrapping: " << Demangle<T>() << std::endl;
+        }
+    }
+
 
     ~DLWrapper()
     {
