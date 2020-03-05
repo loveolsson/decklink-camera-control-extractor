@@ -6,7 +6,7 @@
 #include <sys/termios.h> // for termios, cfmakeraw, cfsetispeed, cfsetospeed
 #include <unistd.h>      // for write, close
 #include <iostream>      // for operator<<, endl, basic_ostream, cout, ostream
-#include <thread>      // for operator<<, endl, basic_ostream, cout, ostream
+#include <thread>        // for operator<<, endl, basic_ostream, cout, ostream
 
 static uint8_t
 CRC(uint8_t *data, size_t length)
@@ -71,8 +71,7 @@ bool SerialOutput::Begin()
     serial.c_cflag |= CS8;
     /* Canonical mode */
     serial.c_lflag |= ICANON;
-    serial.c_oflag &= ~ONLCR;
-
+    serial.c_oflag &= ~OPOST; /*No Output Processing*/
 
     /* Flush Port, then applies attributes */
     tcflush(this->fd, TCIFLUSH);
