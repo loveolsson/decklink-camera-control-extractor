@@ -25,8 +25,8 @@ void PrintPacket(Packet &pkt)
     else
     {
         std::cout << ", \"Unknown command";
-        std::cout << "(" << pkt.commandInfo.category;
-        std::cout << ", " << pkt.commandInfo.parameter << ")";
+        std::cout << "(" << (int)pkt.commandInfo.category;
+        std::cout << ", " << (int)pkt.commandInfo.parameter << ")";
     }
 
     if (pkt.commandInfo.type)
