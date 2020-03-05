@@ -103,11 +103,12 @@ public:
     {
         auto temp = this->item;
         this->item = nullptr;
-        return temp;
 
         if (temp) {
             std::cout << "Detach: " << Demangle<T>() << " " << (uint64_t)temp << ", after move " << (uint64_t)this->item << std::endl;
         }
+
+        return temp;
     }
 
     T &operator*() const throw()
