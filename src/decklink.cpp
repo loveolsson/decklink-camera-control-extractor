@@ -9,36 +9,9 @@
 #include <string.h>
 #include <ratio>
 
-#ifdef MAC
-#include "CoreFoundation/CFBase.h"
-#include "CoreFoundation/CFString.h"
-#endif
-
 static constexpr auto tallyInterval = std::chrono::seconds(5);
 
-#ifdef MACOS
-typedef CFStringRef OSString;
-static std::string GetString(OSString mstr)
-{
-    CFIndex length = CFStringGetLength(mstr);
-    char *c_str = (char *)malloc(length + 1);
-    CFStringGetCString(mstr, c_str, length, kCFStringEncodingUTF8);
-
-    std::string str(c_str);
-
-    free(c_str);
-
-    return str;
-}
-#else
-typedef const char *OSString;
-static std::string GetString(OSString str)
-{
-    return str;
-}
-#endif
-
-std::shared_ptr<DLWrapper<IDeckLink>> GetDeckLinkByNameOrFirst(const char *name)
+std::shared_ptr<DLWrapper<IDeckLinkInput>> GetDeckLinkByNameOrFirst(const char *name)
 {
     IDeckLink *deckLink;
     auto wIterator = DLMakeShared(CreateDeckLinkIteratorInstance());
@@ -52,12 +25,16 @@ std::shared_ptr<DLWrapper<IDeckLink>> GetDeckLinkByNameOrFirst(const char *name)
     while ((*wIterator)->Next(&deckLink) == S_OK)
     {
         auto wDeckLink = DLMakeShared(deckLink);
-        OSString devName;
+        DLString devName;
         if ((*wDeckLink)->GetDisplayName(&devName) == S_OK)
         {
             if (GetString(devName) == name || strlen(name) == 0)
             {
-                return wDeckLink;
+                auto wDeckLinkInput = WRAPPED_FROM_IUNKNOWN(wDeckLink, IDeckLinkInput);
+                if (wDeckLinkInput)
+                {
+                    return wDeckLinkInput;
+                }
             }
         }
     }
@@ -65,16 +42,9 @@ std::shared_ptr<DLWrapper<IDeckLink>> GetDeckLinkByNameOrFirst(const char *name)
     return nullptr;
 }
 
-DeckLinkReceiver::DeckLinkReceiver(std::shared_ptr<DLWrapper<IDeckLink>> deckLink, ByteFifo &_fifo)
-    : fifo(_fifo), lastTallyUpdate(std::chrono::steady_clock::now()), wDeckLinkInput()
+DeckLinkReceiver::DeckLinkReceiver(std::shared_ptr<DLWrapper<IDeckLinkInput>> _wDeckLinkInput, ByteFifo &_fifo)
+    : wDeckLinkInput(_wDeckLinkInput), fifo(_fifo), lastTallyUpdate(std::chrono::steady_clock::now())
 {
-    this->wDeckLinkInput = WRAPPED_FROM_IUNKNOWN(deckLink, IDeckLinkInput);
-    if (!this->wDeckLinkInput)
-    {
-        std::cout << "DeckLink card has no input" << std::endl;
-        return;
-    }
-
     {
         // Some legacy DeckLink cards can only capture VANC-data if the pixel format is 10bit
         auto attr = WRAPPED_FROM_IUNKNOWN(this->wDeckLinkInput, IDeckLinkProfileAttributes);
@@ -197,8 +167,7 @@ DeckLinkReceiver::VideoInputFormatChanged(BMDVideoInputFormatChangedEvents notif
 {
     if (newDisplayMode)
     {
-        OSString name;
-
+        DLString name;
         if (newDisplayMode->GetName(&name) == S_OK)
         {
             std::cout << "Detected new video mode: " << GetString(name) << std::endl;

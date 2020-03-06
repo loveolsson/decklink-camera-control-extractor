@@ -71,16 +71,15 @@ bool SerialOutput::Begin()
     serial.c_cflag &= ~CSIZE;  /* Clears the mask for setting the data size             */
     serial.c_cflag |= CS8;     /* Set the data bits = 8                                 */
 
-    serial.c_cflag &= ~CRTSCTS;       /* No Hardware flow Control                         */
-    serial.c_cflag &= ~CREAD;       /* Disable receiver                         */
-    serial.c_cflag |= CLOCAL; /* Ignore Modem Control lines       */
+    serial.c_cflag &= ~CRTSCTS; /* No Hardware flow Control                         */
+    serial.c_cflag &= ~CREAD;   /* Disable receiver                         */
+    serial.c_cflag |= CLOCAL;   /* Ignore Modem Control lines       */
 
     serial.c_iflag &= ~(IXON | IXOFF | IXANY);         /* Disable XON/XOFF flow control both i/p and o/p */
     serial.c_iflag &= ~(ICANON | ECHO | ECHOE | ISIG); /* Non Cannonical mode                            */
 
     //serial.c_oflag &= ~OPOST; /*No Output Processing*/
-    serial.c_oflag &= ~(OPOST|OLCUC|ONLCR|OCRNL|ONLRET|OFDEL);
-
+    serial.c_oflag &= ~(OPOST | /*OLCUC |*/ ONLCR | OCRNL | ONLRET | OFDEL);
 
     /* Setting Time outs */
     serial.c_cc[VMIN] = 10; /* Read at least 10 characters */
@@ -103,13 +102,12 @@ void SerialOutput::Write(uint8_t *data, size_t size)
     }
 
     uint8_t leadIn[] = {
-        254,             // The receiver is looking for 3 bytes of 254 in a row to start parsing
-        254,             //
-        254,             //
+        0xFE,            // The receiver is looking for 3 bytes of 254 in a row to start parsing
+        0xFE,            //
+        0xFE,            //
         (uint8_t)size,   // Size of packet, including header
         CRC(data, size), // XOR CRC
     };
-
 
     //attempt to send
     if (write(fd, leadIn, sizeof(leadIn)) < 0)

@@ -6,12 +6,38 @@
 #include <string>
 #include <memory>
 
+#ifdef MAC
+#include "CoreFoundation/CFBase.h"
+#include "CoreFoundation/CFString.h"
+#endif
+
 #define IID_FROM_TYPE(x) IID_##x
 #define WRAPPED_FROM_IUNKNOWN(D, T) DLWrapper<T>::FromIUnknown(D, IID_FROM_TYPE(T))
 #ifdef DISABLE_LOGGING
 static const bool enableLogging = false;
 #else
 static const bool enableLogging = true;
+#endif
+
+#ifdef MACOS
+typedef CFStringRef DLString;
+static std::string GetString(DLString mstr)
+{
+    CFIndex length = CFStringGetLength(mstr);
+    char *c_str = (char *)malloc(length + 1);
+    CFStringGetCString(mstr, c_str, length, kCFStringEncodingUTF8);
+
+    std::string str(c_str);
+    free(c_str);
+
+    return str;
+}
+#else
+typedef const char *DLString;
+static std::string GetString(DLString str)
+{
+    return str;
+}
 #endif
 
 template <typename T>

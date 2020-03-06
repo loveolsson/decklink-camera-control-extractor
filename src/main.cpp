@@ -71,8 +71,8 @@ int main(int argc, char *argv[])
 	std::cout << "Searching for DeckLink cards..." << std::endl;
 
 	const char* deckLinkName = argc == 4 ? argv[3] : "";
-	auto wDeckLink = GetDeckLinkByNameOrFirst(deckLinkName);
-	if (!wDeckLink)
+	auto wDeckLinkInput = GetDeckLinkByNameOrFirst(deckLinkName);
+	if (!wDeckLinkInput)
 	{
 		std::cout << "Found no DeckLink cards... exiting." << std::endl;
 		PrintUsage();
@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
 	}
 
 	ByteFifo fifo;
-	DeckLinkReceiver receiver(wDeckLink, fifo);
+	DeckLinkReceiver receiver(wDeckLinkInput, fifo);
 	Packet pkt;
 
 	while (keepRunning)

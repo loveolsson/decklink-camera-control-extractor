@@ -12,12 +12,12 @@
 #include "CoreFoundation/CFPlugInCOM.h"
 #endif
 
-std::shared_ptr<DLWrapper<IDeckLink>> GetDeckLinkByNameOrFirst(const char *name);
+std::shared_ptr<DLWrapper<IDeckLinkInput>> GetDeckLinkByNameOrFirst(const char *name);
 
 class DeckLinkReceiver : public IDeckLinkInputCallback
 {
 public:
-    DeckLinkReceiver(std::shared_ptr<DLWrapper<IDeckLink>> deckLink, ByteFifo &_fifo);
+    DeckLinkReceiver(std::shared_ptr<DLWrapper<IDeckLinkInput>> _wDeckLinkInput, ByteFifo &_fifo);
     ~DeckLinkReceiver();
 
     HRESULT VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, IDeckLinkAudioInputPacket *audioPacket);
