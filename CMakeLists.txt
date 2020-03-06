@@ -57,6 +57,8 @@ add_executable(DeckLinkCameraControl ${SOURCES} ${OS_SOURCES})
 target_link_libraries(DeckLinkCameraControl pthread ${CMAKE_DL_LIBS} ${CORE_FOUNDATION})
 set_property(TARGET DeckLinkCameraControl PROPERTY INTERPROCEDURAL_OPTIMIZATION ON)
 
+SET(CPACK_PACKAGE_CONTACT "Love Olsson (love@loveolsson.se")
+
 install(TARGETS DeckLinkCameraControl DESTINATION bin)
 
 INCLUDE(CPack)
