@@ -1,13 +1,12 @@
 #include "decklink.h"
 #include "defines.h"
+#include "dlwrapper.h"
 
-#include <stdlib.h>
 #include <algorithm>
 #include <cstdint>
 #include <iostream>
 #include <string>
 #include <string.h>
-#include <ratio>
 
 static constexpr auto tallyInterval = std::chrono::seconds(5);
 

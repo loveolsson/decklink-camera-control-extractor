@@ -6,8 +6,6 @@
 #include <sys/termios.h> // for termios, cfmakeraw, cfsetispeed, cfsetospeed
 #include <unistd.h>      // for write, close
 #include <iostream>      // for operator<<, endl, basic_ostream, cout, ostream
-#include <thread>        // for operator<<, endl, basic_ostream, cout, ostream
-#include <cstring>
 
 static uint8_t
 CRC(uint8_t *data, size_t length)

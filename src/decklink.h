@@ -1,5 +1,4 @@
 #pragma once
-#include "dlwrapper.h"
 #include "mutexfifo.h"
 
 #include "include/DeckLinkAPI.h"
@@ -7,10 +6,9 @@
 #include <stdint.h>
 #include <chrono>
 #include <vector>
+#include <memory>
 
-#ifdef MAC
-#include "CoreFoundation/CFPlugInCOM.h"
-#endif
+template <typename T> class DLWrapper;
 
 std::shared_ptr<DLWrapper<IDeckLinkInput>> GetDeckLinkByNameOrFirst(const char *name);
 

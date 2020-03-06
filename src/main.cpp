@@ -3,9 +3,6 @@
 #include "printpacket.h"
 #include "serialoutput.h"
 #include "defines.h"              // for Packet, Header, PADDING
-#include "dlwrapper.h"            // for DLWrapper
-
-#include "include/DeckLinkAPI.h"  // for IDeckLink
 
 #include <stdint.h>               // for uint8_t
 #include <stdlib.h>               // for EXIT_FAILURE, EXIT_SUCCESS, size_t
@@ -15,6 +12,7 @@
 #include <chrono>
 #include <thread>
 #include <iostream>
+#include <memory>
 
 static volatile int keepRunning = 1;
 
