@@ -129,7 +129,7 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
                 // Check if data fits in package (this should be safe up to a 114 input mixer)
                 if (this->activeTallyData.size() <= sizeof(Packet::data))
                 {
-                    Packet pkt = {0};
+                    Packet pkt = {};
 
                     pkt.header.dest = 255;
                     pkt.header.command = 255;

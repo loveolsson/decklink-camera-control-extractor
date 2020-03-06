@@ -61,4 +61,6 @@ SET(CPACK_PACKAGE_CONTACT "Love Olsson (love@loveolsson.se")
 
 install(TARGETS DeckLinkCameraControl DESTINATION bin)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-long-long -pedantic")
+
 INCLUDE(CPack)

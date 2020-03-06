@@ -22,7 +22,7 @@ static const Command lensCommands[] = {
     {"Set continuous zoom (speed)"},
 };
 
-static const CommandGroup lensCommandGroup[] = {lensCommands, NUM(lensCommands)};
+static const CommandGroup lensCommandGroup = {lensCommands, NUM(lensCommands)};
 
 static const Command videoCommands[] = {
     {"Video mode"},
@@ -43,7 +43,7 @@ static const Command videoCommands[] = {
     {"Display LUT"},
 };
 
-static const CommandGroup videoCommandGroup[] = {videoCommands, NUM(videoCommands)};
+static const CommandGroup videoCommandGroup = {videoCommands, NUM(videoCommands)};
 
 static const Command audioCommands[] = {
     {"Mic level"},
@@ -55,7 +55,7 @@ static const Command audioCommands[] = {
     {"Phantom power"},
 };
 
-static const CommandGroup audioCommandGroup[] = {audioCommands, NUM(audioCommands)};
+static const CommandGroup audioCommandGroup = {audioCommands, NUM(audioCommands)};
 
 static const Command outputCommands[] = {
     {"Overlay enables"},
@@ -64,7 +64,7 @@ static const Command outputCommands[] = {
     {"Overlays (replaces .1 and .2 above from Cameras 4.0)"},
 };
 
-static const CommandGroup outputCommandGroup[] = {outputCommands, NUM(outputCommands)};
+static const CommandGroup outputCommandGroup = {outputCommands, NUM(outputCommands)};
 
 static const Command displayCommands[] = {
     {"Brightness"},
@@ -76,7 +76,7 @@ static const Command displayCommands[] = {
     {"Program return feed enable"},
 };
 
-static const CommandGroup displayCommandGroup[] = {displayCommands, NUM(displayCommands)};
+static const CommandGroup displayCommandGroup = {displayCommands, NUM(displayCommands)};
 
 static const Command tallyCommands[] = {
     {"Tally brightness"},
@@ -84,14 +84,14 @@ static const Command tallyCommands[] = {
     {"Rear tally brightness"},
 };
 
-static const CommandGroup tallyCommandGroup[] = {tallyCommands, NUM(tallyCommands)};
+static const CommandGroup tallyCommandGroup = {tallyCommands, NUM(tallyCommands)};
 
 static const Command referenceCommands[] = {
     {"Source"},
     {"Offset"},
 };
 
-static const CommandGroup referenceCommandGroup[] = {referenceCommands, NUM(referenceCommands)};
+static const CommandGroup referenceCommandGroup = {referenceCommands, NUM(referenceCommands)};
 
 static const Command configurationCommands[] = {
     {"Real Time Clock"},
@@ -100,7 +100,7 @@ static const Command configurationCommands[] = {
     {"Location"},
 };
 
-static const CommandGroup configurationCommandGroup[] = {configurationCommands, NUM(configurationCommands)};
+static const CommandGroup configurationCommandGroup = {configurationCommands, NUM(configurationCommands)};
 
 static const Command colorCommands[] = {
     {"Lift Adjust"},
@@ -113,7 +113,7 @@ static const Command colorCommands[] = {
     {"Correction Reset Default"},
 };
 
-static const CommandGroup colorCommandGroup[] = {colorCommands, NUM(colorCommands)};
+static const CommandGroup colorCommandGroup = {colorCommands, NUM(colorCommands)};
 
 static const Command mediaCommands[] = {
     {"Codec"},
@@ -121,28 +121,28 @@ static const Command mediaCommands[] = {
     {"Playback Control"},
 };
 
-static const CommandGroup mediaCommandGroup[] = {mediaCommands, NUM(mediaCommands)};
+static const CommandGroup mediaCommandGroup = {mediaCommands, NUM(mediaCommands)};
 
 static const Command ptzCommands[] = {
     {"Pan/Tilt Velocity"},
     {"Memory Preset"},
 };
 
-static const CommandGroup ptzCommandGroup[] = {ptzCommands, NUM(ptzCommands)};
+static const CommandGroup ptzCommandGroup = {ptzCommands, NUM(ptzCommands)};
 
 static const CommandGroup *groups[] = {
-    lensCommandGroup,
-    videoCommandGroup,
-    audioCommandGroup,
-    outputCommandGroup,
-    displayCommandGroup,
-    tallyCommandGroup,
-    referenceCommandGroup,
-    configurationCommandGroup,
-    colorCommandGroup,
+    &lensCommandGroup,
+    &videoCommandGroup,
+    &audioCommandGroup,
+    &outputCommandGroup,
+    &displayCommandGroup,
+    &tallyCommandGroup,
+    &referenceCommandGroup,
+    &configurationCommandGroup,
+    &colorCommandGroup,
     nullptr,
-    mediaCommandGroup,
-    ptzCommandGroup,
+    &mediaCommandGroup,
+    &ptzCommandGroup,
 };
 
 const Command *GetCommandFromData(const CommandInfo *data)
