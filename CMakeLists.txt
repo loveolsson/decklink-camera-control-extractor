@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 	include_directories(
 		3rdParty/macos/
+		include/
 	)
 
 	file(GLOB OS_SOURCES
@@ -24,6 +25,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 else()
 	include_directories(
 		3rdParty/linux/
+		include/
 	)
 
 	file(GLOB OS_SOURCES
@@ -38,18 +40,11 @@ else()
 endif()
 
 file(GLOB SOURCES
-	src/serialoutput.h
 	src/serialoutput.cpp
-	src/printpacket.h
 	src/printpacket.cpp
-	src/mutexfifo.h
 	src/main.cpp
-	src/defines.h
-	src/decklink.h
 	src/decklink.cpp
-	src/commands.h
 	src/commands.cpp
-	src/dlwrapper.h
 )
 
 # add the executable

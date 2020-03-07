@@ -1,5 +1,10 @@
+#ifdef ARDUINO_ARCH_ESP32
+#include "include/commands.h"
+#include "include/defines.h"  // for NUM, CommandInfo
+#else
 #include "commands.h"
 #include "defines.h"  // for NUM, CommandInfo
+#endif
 
 #include <stdint.h>   // for uint8_t
 
