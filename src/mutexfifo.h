@@ -11,7 +11,7 @@ public:
     std::unique_lock<std::mutex> lock(xMutex);
     if (this->itemCount + count > S)
     {
-      count = 0;
+      return 0;
     }
 
     size_t itemsLeft = count;
@@ -37,7 +37,7 @@ public:
   {
     std::unique_lock<std::mutex> lock(xMutex);
 
-    if (count == 0 || count > this->itemCount)
+    if (count > this->itemCount)
     {
       return 0;
     }
@@ -49,7 +49,7 @@ public:
       const size_t leftBeforeWrap = S - this->readHead;
       const size_t itemsToRead = std::min(itemsLeft, leftBeforeWrap);
 
-      const uint8_t* readStart = &this->queue[readHead];
+      const uint8_t *readStart = &this->queue[readHead];
       std::copy(readStart, readStart + itemsToRead, data);
 
       itemsLeft -= itemsToRead;
@@ -66,7 +66,7 @@ public:
   {
     std::unique_lock<std::mutex> lock(xMutex);
 
-    if (count < 0 || count > this->itemCount)
+    if (count > this->itemCount)
     {
       return 0;
     }
@@ -79,7 +79,7 @@ public:
       const size_t leftBeforeWrap = S - tempReadHead;
       const size_t itemsToRead = std::min(itemsLeft, leftBeforeWrap);
 
-      const uint8_t* readStart = &this->queue[readHead];
+      const uint8_t *readStart = &this->queue[readHead];
       std::copy(readStart, readStart + itemsToRead, data);
 
       itemsLeft -= itemsToRead;
@@ -88,6 +88,39 @@ public:
     }
 
     return count;
+  }
+
+  template <typename P>
+  inline size_t TPush(const P *item, int size = -1)
+  {
+    if (size < 0)
+    {
+      size = sizeof(P);
+    }
+
+    return Push((T *)item, size);
+  }
+
+  template <typename P>
+  inline size_t TPop(P *item, int size = -1)
+  {
+    if (size < 0)
+    {
+      size = sizeof(P);
+    }
+
+    return Pop((T *)item, size);
+  }
+
+  template <typename P>
+  inline size_t TPeek(P *item, int size = -1)
+  {
+    if (size < 0)
+    {
+      size = sizeof(P);
+    }
+
+    return Peek((T *)item, size);
   }
 
 private:

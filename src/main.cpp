@@ -85,9 +85,9 @@ int main(int argc, char *argv[])
 	{
 		bool gotJobDone = false;
 
-		if (fifo.Pop((uint8_t *)&pkt.header, sizeof(Header)) != 0)
+		if (fifo.TPop(&pkt.header) != 0)
 		{
-			if (fifo.Pop((uint8_t *)&pkt.commandInfo, PADDING(pkt.header.len)) != 0)
+			if (fifo.TPop(&pkt.commandInfo, PADDING(pkt.header.len)) != 0)
 			{
 				gotJobDone = true;
 

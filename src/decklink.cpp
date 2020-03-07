@@ -141,7 +141,7 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
                     std::copy(this->activeTallyData.begin(), this->activeTallyData.end(), pkt.data);
 
                     const size_t totalSize = sizeof(Header) + PADDING(pkt.header.len);
-                    this->fifo.Push((uint8_t *)&pkt, totalSize);
+                    this->fifo.TPush(&pkt, totalSize);
                 }
             }
         }

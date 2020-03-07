@@ -20,12 +20,12 @@ struct CommandInfo
   uint8_t type;
 };
 
-#define PACKET_DATA_LENGTH (64 - sizeof(Header) - sizeof(CommandInfo))
+#define PKT_MAX_DATA_LENGTH (64 - sizeof(Header) - sizeof(CommandInfo))
 
 struct Packet
 {
   Header header;
   CommandInfo commandInfo;
-  uint8_t data[PACKET_DATA_LENGTH];
+  uint8_t data[PKT_MAX_DATA_LENGTH];
 };
 #pragma pack(pop)
