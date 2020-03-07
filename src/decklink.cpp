@@ -131,12 +131,12 @@ DeckLinkReceiver::VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, I
                 {
                     Packet pkt = {};
 
-                    pkt.header.dest = 255;
-                    pkt.header.command = 255;
+                    pkt.header.dest = 0xFF;
+                    pkt.header.command = 0xFF;
                     pkt.header.len = sizeof(CommandInfo) + size;
 
-                    pkt.commandInfo.category = 255;
-                    pkt.commandInfo.parameter = 255;
+                    pkt.commandInfo.category = 0xFF;
+                    pkt.commandInfo.parameter = 0xFF;
 
                     std::copy(this->activeTallyData.begin(), this->activeTallyData.end(), pkt.data);
 

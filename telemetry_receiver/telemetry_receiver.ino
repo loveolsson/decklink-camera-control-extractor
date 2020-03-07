@@ -11,6 +11,8 @@ RunState runState;
 
 void setup()
 {
+  printf("Starting...\n");
+  
   SetupPins();
 
   if (false)

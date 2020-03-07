@@ -4,7 +4,7 @@ static const gpio_num_t dipPins[] = {DIP_PIN_1, DIP_PIN_2, DIP_PIN_3, DIP_PIN_4}
 
 static void Pin(gpio_num_t pin, gpio_mode_t dir, gpio_pullup_t pullup, uint32_t state)
 {
-  uint64_t bitMask = 1 << pin;
+  uint64_t bitMask = ((uint64_t)1) << pin;
 
   gpio_config_t io_conf = {};
   io_conf.intr_type = GPIO_INTR_DISABLE;

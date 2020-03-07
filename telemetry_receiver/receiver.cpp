@@ -55,7 +55,7 @@ void ReceiverInit(RunState *runState)
 
   InitUART();
 
-  printf("Init receiver...");
+  printf("Init shield...");
   runState->cc = std::make_shared<I2CCustom<BMD::SDICameraControl>>(SHIELD_ADDR);
   runState->cc->begin();
   runState->tally = std::make_shared<I2CCustom<BMD::SDITallyControl>>(SHIELD_ADDR);
@@ -63,6 +63,7 @@ void ReceiverInit(RunState *runState)
   printf("done\n");
   runState->cc->setOverride(true);
   runState->tally->setOverride(true);
+  printf("ReceiverInit finished\n");
 }
 
 void ReceiverWireLoop(void *_runState)
@@ -105,7 +106,7 @@ void ReceiverWireLoop(void *_runState)
         const Packet *pkt = (Packet *)dataPtr;
 
         // Pop the entire packet from the fifo
-        runState->queue.TPop(&pkt, totalPacketLength);
+        runState->queue.TPop(pkt, totalPacketLength);
 
         if (IsTallyPacket(pkt))
         {
@@ -224,6 +225,7 @@ void ReceiverSerialLoop(void *_runState)
     const size_t paddedSize = sizeof(Header) + PADDING(header.len);
     if (runState->queue.TPush(&pkt, paddedSize) == 0)
     {
+      printf("FIFO full, failed to insert size %u\n", paddedSize);
       gpio_set_level(LED_ERR, 0);
     }
   }
