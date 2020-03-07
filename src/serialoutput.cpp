@@ -100,7 +100,7 @@ void SerialOutput::Write(uint8_t *data, size_t size)
     }
 
     uint8_t leadIn[] = {
-        0xFE,            // The receiver is looking for 3 bytes of 254 in a row to start parsing
+        0xFE,            // The receiver is looking for 3 bytes of 0xFE in a row to start parsing
         0xFE,            //
         0xFE,            //
         (uint8_t)size,   // Size of packet, including header

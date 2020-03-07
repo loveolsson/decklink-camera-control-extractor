@@ -53,9 +53,16 @@ target_link_libraries(DeckLinkCameraControl pthread ${CMAKE_DL_LIBS} ${CORE_FOUN
 set_property(TARGET DeckLinkCameraControl PROPERTY INTERPROCEDURAL_OPTIMIZATION ON)
 
 SET(CPACK_PACKAGE_CONTACT "Love Olsson (love@loveolsson.se")
-
 install(TARGETS DeckLinkCameraControl DESTINATION bin)
+INCLUDE(CPack)
+
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "Debug")
+endif()
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+	add_compile_definitions(DLWRAPPER_LOGGING)
+endif ()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-long-long -pedantic")
 
-INCLUDE(CPack)
