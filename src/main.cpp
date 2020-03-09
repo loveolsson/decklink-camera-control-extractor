@@ -2,13 +2,13 @@
 #include "mutexfifo.h"
 #include "printpacket.h"
 #include "serialoutput.h"
-#include "defines.h"              // for Packet, Header, PADDING
+#include "defines.h" // for Packet, Header, PADDING
 
-#include <stdint.h>               // for uint8_t
-#include <stdlib.h>               // for EXIT_FAILURE, EXIT_SUCCESS, size_t
-#include <sys/signal.h>           // for signal, SIGINT
-#include <exception>              // for exception
-#include <string>                 // for stoi
+#include <stdint.h>		// for uint8_t
+#include <stdlib.h>		// for EXIT_FAILURE, EXIT_SUCCESS, size_t
+#include <sys/signal.h> // for signal, SIGINT
+#include <exception>	// for exception
+#include <string>		// for stoi
 #include <chrono>
 #include <thread>
 #include <iostream>
@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
 
 	std::cout << "Searching for DeckLink cards..." << std::endl;
 
-	const char* deckLinkName = argc == 4 ? argv[3] : "";
+	const char *deckLinkName = argc == 4 ? argv[3] : "";
 	auto wDeckLinkInput = GetDeckLinkByNameOrFirst(deckLinkName);
 	if (!wDeckLinkInput)
 	{
@@ -91,10 +91,11 @@ int main(int argc, char *argv[])
 			{
 				gotJobDone = true;
 
-				if (pkt.header.dest == 1 || pkt.header.dest == 255) {
+				if (pkt.header.dest == 1 || pkt.header.dest == 255)
+				{
 					const size_t totalLength = sizeof(Header) + pkt.header.len;
 					serialOutput.Write((uint8_t *)&pkt, totalLength);
-					PrintPacket(pkt);
+					std::cout << PrintPacket(pkt) << std::endl;
 				}
 			}
 			else

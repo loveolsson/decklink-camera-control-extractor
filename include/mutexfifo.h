@@ -1,6 +1,6 @@
 #pragma once
 #include <mutex>
-#include <algorithm>
+#include <type_traits>
 
 template <typename T, size_t S>
 class MutexFifo
@@ -14,21 +14,12 @@ public:
       return 0;
     }
 
-    size_t itemsLeft = count;
+    auto cb = [](T *fifoPtr, const T *userPtr, size_t size) {
+      std::copy(userPtr, userPtr + size, fifoPtr);
+    };
 
-    while (itemsLeft > 0)
-    {
-      const size_t leftBeforeWrap = S - this->writeHead;
-      const size_t itemsToWrite = std::min(itemsLeft, leftBeforeWrap);
-
-      std::copy(data, data + itemsToWrite, this->queue + this->writeHead);
-
-      itemsLeft -= itemsToWrite;
-      this->itemCount += itemsToWrite;
-      this->writeHead += itemsToWrite;
-      this->writeHead %= S;
-      data = &data[itemsToWrite];
-    }
+    this->writeHead = this->BatchCopy<const T>(data, this->writeHead, count, cb);
+    this->itemCount += count;
 
     return count;
   }
@@ -42,22 +33,12 @@ public:
       return 0;
     }
 
-    size_t itemsLeft = count;
+    auto cb = [](T *fifoPtr, T *userPtr, size_t size) {
+      std::copy(fifoPtr, fifoPtr + size, userPtr);
+    };
 
-    while (itemsLeft > 0)
-    {
-      const size_t leftBeforeWrap = S - this->readHead;
-      const size_t itemsToRead = std::min(itemsLeft, leftBeforeWrap);
-
-      const uint8_t *readStart = &this->queue[readHead];
-      std::copy(readStart, readStart + itemsToRead, data);
-
-      itemsLeft -= itemsToRead;
-      this->itemCount -= itemsToRead;
-      this->readHead += itemsToRead;
-      this->readHead %= S;
-      data = &data[itemsToRead];
-    }
+    this->readHead = this->BatchCopy<T>(data, this->readHead, count, cb);
+    this->itemCount -= count;
 
     return count;
   }
@@ -71,27 +52,17 @@ public:
       return 0;
     }
 
-    size_t tempReadHead = this->readHead;
-    size_t itemsLeft = count;
+    auto cb = [](T *fifoPtr, T *userPtr, size_t size) {
+      std::copy(fifoPtr, fifoPtr + size, userPtr);
+    };
 
-    while (itemsLeft > 0)
-    {
-      const size_t leftBeforeWrap = S - tempReadHead;
-      const size_t itemsToRead = std::min(itemsLeft, leftBeforeWrap);
-
-      const uint8_t *readStart = &this->queue[readHead];
-      std::copy(readStart, readStart + itemsToRead, data);
-
-      itemsLeft -= itemsToRead;
-      tempReadHead = (tempReadHead + itemsToRead) % S;
-      data = &data[itemsToRead];
-    }
+    this->BatchCopy<T>(data, this->readHead, count, cb);
 
     return count;
   }
 
   template <typename P>
-  inline size_t TPush(const P *item, int size = -1)
+  size_t TPush(const P *item, int size = -1)
   {
     if (size < 0)
     {
@@ -102,7 +73,7 @@ public:
   }
 
   template <typename P>
-  inline size_t TPop(P *item, int size = -1)
+  size_t TPop(P *item, int size = -1)
   {
     if (size < 0)
     {
@@ -113,7 +84,7 @@ public:
   }
 
   template <typename P>
-  inline size_t TPeek(P *item, int size = -1)
+  size_t TPeek(P *item, int size = -1)
   {
     if (size < 0)
     {
@@ -124,8 +95,32 @@ public:
   }
 
 private:
+  // Call the callback one or two times to perform the transaction, depending on if the transaction
+  // spans over the edge of the buffer. Returns the head position after copy.
+  template <typename Tc>
+  size_t BatchCopy(Tc *userPtr, size_t head, size_t count, void (*cb)(T *fifoPtr, Tc *userPtr, size_t size))
+  {
+    while (count > 0)
+    {
+      size_t itemsToCopy = S - head;
+      if (count < itemsToCopy)
+      {
+        itemsToCopy = count;
+      }
+
+      cb(this->buffer + head, userPtr, itemsToCopy);
+
+      count -= itemsToCopy;
+      head += itemsToCopy;
+      head %= S;
+      userPtr += itemsToCopy;
+    }
+
+    return head;
+  }
+
   std::mutex xMutex;
-  T queue[S];
+  T buffer[S];
   size_t itemCount = 0;
   size_t readHead = 0;
   size_t writeHead = 0;

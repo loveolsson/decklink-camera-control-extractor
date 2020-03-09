@@ -1,45 +1,46 @@
 #include "printpacket.h"
-#include "commands.h"  // for GetCommandFromData, Command
-#include "defines.h"   // for Packet, Header, CommandInfo
+#include "commands.h"
+#include "defines.h"
 
-#include <iomanip>     // for operator<<, setw
-#include <iostream>    // for operator<<, basic_ostream, cout, ostream, stri...
-#include <string>      // for char_traits
+#include <iomanip>
 #include <sstream>
 
-void PrintPacket(Packet &pkt)
+std::string PrintPacket(Packet &pkt)
 {
     if (pkt.header.len < sizeof(CommandInfo))
     {
-        return;
+        return "Packet to short to decode";
     }
 
-    std::cout << "Dest: " << (int)pkt.header.dest;
-    std::cout << ", Len: " << (int)pkt.header.len;
+    std::stringstream str;
+
+    str << "Dest: " << (int)pkt.header.dest;
+    str << ", Len: " << (int)pkt.header.len;
 
     auto cmd = GetCommandFromData(&pkt.commandInfo);
     if (cmd != nullptr)
     {
-        std::cout << ", \"" << cmd->name << "\"";
+        str << ", \"" << cmd->name << "\"";
     }
     else
     {
-        std::cout << ", \"Unknown command";
-        std::cout << "(" << (int)pkt.commandInfo.category;
-        std::cout << ", " << (int)pkt.commandInfo.parameter << ")";
+        str << ", \"Unknown command";
+        str << " (" << (int)pkt.commandInfo.category;
+        str << ", " << (int)pkt.commandInfo.parameter << ")";
     }
 
     if (pkt.commandInfo.type)
     {
-        std::cout << ", Type: assign";
+        str << ", Type: assign";
     }
     else
     {
-        std::cout << ", Type: offset/toggle";
+        str << ", Type: offset/toggle";
     }
 
-    std::cout << ", Hex:" << ToHex((uint8_t *)&pkt, sizeof(Header) + pkt.header.len);
-    std::cout << std::endl;
+    str << ", Hex:" << ToHex((uint8_t *)&pkt, sizeof(Header) + pkt.header.len);
+
+    return str.str();
 }
 
 std::string ToHex(const uint8_t *buffer, size_t size)

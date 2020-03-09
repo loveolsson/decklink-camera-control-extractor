@@ -34,7 +34,8 @@ static void UpdateOptoTally(uint8_t state)
   bool g = state & 0x02;
 
 #ifdef RED_TALLY_EXCLUSIVE
-  if (r) {
+  if (r)
+  {
     g = false;
   }
 #endif
@@ -193,8 +194,14 @@ void ReceiverSerialLoop(void *_runState)
     // Read the master header from UART
     UARTReadBytes((uint8_t *)&masterHeader, sizeof(MasterHeader));
 
+    // Zero the packet struct to make sure padded bytes are zero (if any equipment would care)
     Packet pkt = {};
-    const Header &header = pkt.header;
+
+    // Check if the size of the packet exceeds maximum packet length
+    if (masterHeader.size > sizeof(Packet))
+    {
+      continue;
+    }
 
     if (masterHeader.size > 0)
     {
@@ -209,7 +216,7 @@ void ReceiverSerialLoop(void *_runState)
     }
 
     // Check if the master header size matches the packet header size
-    if (masterHeader.size != sizeof(Header) + header.len)
+    if (masterHeader.size != sizeof(Header) + pkt.header.len)
     {
       continue;
     }
@@ -222,7 +229,7 @@ void ReceiverSerialLoop(void *_runState)
 
     // Push the packet to the fifo with padded size to make sure shield loop can pull the
     // full packet directly from the fifo.
-    const size_t paddedSize = sizeof(Header) + PADDING(header.len);
+    const size_t paddedSize = sizeof(Header) + PADDING(pkt.header.len);
     if (runState->queue.TPush(&pkt, paddedSize) == 0)
     {
       printf("FIFO full, failed to insert size %u\n", paddedSize);
