@@ -1,10 +1,12 @@
-#include "esp32_defines.h"
-#include "runstate.h"
 #include "include/commands.h"
+#include "runstate.h"
+
+#include "esp32_defines.h"
 
 #include <memory>
 
-void SenderInit(RunState *runState)
+void
+SenderInit(RunState *runState)
 {
 #if 0
   printf("Init...");
@@ -18,7 +20,8 @@ void SenderInit(RunState *runState)
 #endif
 }
 
-void SenderWireLoop(void *_runState)
+void
+SenderWireLoop(void *_runState)
 {
 #if 0
   RunState *runState = static_cast<RunState *>(_runState);
@@ -43,7 +46,8 @@ void SenderWireLoop(void *_runState)
 
 //const PROGMEM byte leadIn[] = {0, 0, 0};
 
-void SenderSerialLoop(void *_runState)
+void
+SenderSerialLoop(void *_runState)
 {
 #if 0
   RunState *runState = static_cast<RunState *>(_runState);

@@ -2,128 +2,131 @@
 #include <mutex>
 #include <type_traits>
 
+template <typename T>
+static void
+FifoCopyFromUser(T *fifoPtr, const T *userPtr, size_t size)
+{
+    std::copy(userPtr, userPtr + size, fifoPtr);
+}
+
+template <typename T>
+static void
+FifoCopyToUser(const T *fifoPtr, T *userPtr, size_t size)
+{
+    std::copy(fifoPtr, fifoPtr + size, userPtr);
+}
+
 template <typename T, size_t S>
 class MutexFifo
 {
 public:
-  size_t Push(const T *data, size_t count)
-  {
-    std::unique_lock<std::mutex> lock(xMutex);
-    if (this->itemCount + count > S)
+    size_t
+    Push(const T *data, size_t count)
     {
-      return 0;
+        std::unique_lock<std::mutex> lock(xMutex);
+        if (this->itemCount + count > S) {
+            return 0;
+        }
+
+        this->writeHead =
+            this->BatchCopy<const T>(data, this->writeHead, count, FifoCopyFromUser<T>);
+        this->itemCount += count;
+
+        return count;
     }
 
-    auto cb = [](T *fifoPtr, const T *userPtr, size_t size) {
-      std::copy(userPtr, userPtr + size, fifoPtr);
-    };
-
-    this->writeHead = this->BatchCopy<const T>(data, this->writeHead, count, cb);
-    this->itemCount += count;
-
-    return count;
-  }
-
-  size_t Pop(T *data, size_t count)
-  {
-    std::unique_lock<std::mutex> lock(xMutex);
-
-    if (count > this->itemCount)
+    size_t
+    Pop(T *data, size_t count)
     {
-      return 0;
+        std::unique_lock<std::mutex> lock(xMutex);
+
+        if (count > this->itemCount) {
+            return 0;
+        }
+
+        this->readHead = this->BatchCopy<T>(data, this->readHead, count, FifoCopyToUser<T>);
+        this->itemCount -= count;
+
+        return count;
     }
 
-    auto cb = [](T *fifoPtr, T *userPtr, size_t size) {
-      std::copy(fifoPtr, fifoPtr + size, userPtr);
-    };
-
-    this->readHead = this->BatchCopy<T>(data, this->readHead, count, cb);
-    this->itemCount -= count;
-
-    return count;
-  }
-
-  size_t Peek(T *data, size_t count)
-  {
-    std::unique_lock<std::mutex> lock(xMutex);
-
-    if (count > this->itemCount)
+    size_t
+    Peek(T *data, size_t count)
     {
-      return 0;
+        std::unique_lock<std::mutex> lock(xMutex);
+
+        if (count > this->itemCount) {
+            return 0;
+        }
+
+        this->BatchCopy<T>(data, this->readHead, count, FifoCopyToUser<T>);
+
+        return count;
     }
 
-    auto cb = [](T *fifoPtr, T *userPtr, size_t size) {
-      std::copy(fifoPtr, fifoPtr + size, userPtr);
-    };
-
-    this->BatchCopy<T>(data, this->readHead, count, cb);
-
-    return count;
-  }
-
-  template <typename P>
-  size_t TPush(const P *item, int size = -1)
-  {
-    if (size < 0)
+    template <typename P>
+    size_t
+    TPush(const P *item, int size = -1)
     {
-      size = sizeof(P);
+        if (size < 0) {
+            size = sizeof(P);
+        }
+
+        return Push((T *)item, size);
     }
 
-    return Push((T *)item, size);
-  }
-
-  template <typename P>
-  size_t TPop(P *item, int size = -1)
-  {
-    if (size < 0)
+    template <typename P>
+    size_t
+    TPop(P *item, int size = -1)
     {
-      size = sizeof(P);
+        if (size < 0) {
+            size = sizeof(P);
+        }
+
+        return Pop((T *)item, size);
     }
 
-    return Pop((T *)item, size);
-  }
-
-  template <typename P>
-  size_t TPeek(P *item, int size = -1)
-  {
-    if (size < 0)
+    template <typename P>
+    size_t
+    TPeek(P *item, int size = -1)
     {
-      size = sizeof(P);
-    }
+        if (size < 0) {
+            size = sizeof(P);
+        }
 
-    return Peek((T *)item, size);
-  }
+        return Peek((T *)item, size);
+    }
 
 private:
-  // Call the callback one or two times to perform the transaction, depending on if the transaction
-  // spans over the edge of the buffer. Returns the head position after copy.
-  template <typename Tc>
-  size_t BatchCopy(Tc *userPtr, size_t head, size_t count, void (*cb)(T *fifoPtr, Tc *userPtr, size_t size))
-  {
-    while (count > 0)
+    // Call the callback one or two times to perform the transaction, depending on if the transaction
+    // spans over the edge of the buffer. Returns the head position after copy.
+    template <typename Tu, typename Tb>
+    size_t
+    BatchCopy(Tu *userPtr, size_t head, size_t count,
+              void (*cb)(Tb *fifoPtr, Tu *userPtr, size_t size))
     {
-      size_t itemsToCopy = S - head;
-      if (count < itemsToCopy)
-      {
-        itemsToCopy = count;
-      }
+        while (count > 0) {
+            size_t itemsToCopy = S - head;
+            if (count < itemsToCopy) {
+                itemsToCopy = count;
+            }
 
-      cb(this->buffer + head, userPtr, itemsToCopy);
+            cb(this->buffer + head, userPtr, itemsToCopy);
 
-      count -= itemsToCopy;
-      head += itemsToCopy;
-      head %= S;
-      userPtr += itemsToCopy;
+            count -= itemsToCopy;
+            head += itemsToCopy;
+            head %= S;
+            userPtr += itemsToCopy;
+        }
+
+        return head;
     }
 
-    return head;
-  }
-
-  std::mutex xMutex;
-  T buffer[S];
-  size_t itemCount = 0;
-  size_t readHead = 0;
-  size_t writeHead = 0;
+    std::mutex xMutex;
+    T buffer[S];
+    size_t itemCount = 0;
+    size_t readHead  = 0;
+    size_t writeHead = 0;
 };
 
 using ByteFifo = MutexFifo<uint8_t, 2048>;

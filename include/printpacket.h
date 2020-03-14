@@ -1,7 +1,8 @@
 #pragma once
 #include <stddef.h>  // for size_t
 #include <stdint.h>  // for uint8_t
-#include <string>    // for string
+
+#include <iosfwd>  // for string
 struct Packet;
 
 std::string PrintPacket(Packet &pkt);

@@ -2,7 +2,7 @@
 #include "driver/gpio.h"
 #include "include/defines.h"
 
-#ifdef ARDUINO_ARCH_ESP32 // A safeguard against compiling for the wrong architecture
+#ifdef ARDUINO_ARCH_ESP32  // A safeguard against compiling for the wrong architecture
 #define DIP_PIN_1 GPIO_NUM_2
 #define DIP_PIN_2 GPIO_NUM_4
 #define DIP_PIN_3 GPIO_NUM_5

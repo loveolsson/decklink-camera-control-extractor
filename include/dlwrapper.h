@@ -2,8 +2,8 @@
 #include "include/DeckLinkAPI.h"
 
 #include <iostream>
-#include <string>
 #include <memory>
+#include <string>
 
 #ifdef DLWRAPPER_LOGGING
 #include <cxxabi.h>
@@ -24,10 +24,11 @@ static const bool enableLogging = true;
 
 #ifdef MACOS
 typedef CFStringRef DLString;
-static std::string GetString(DLString mstr)
+static std::string
+GetString(DLString mstr)
 {
     CFIndex length = CFStringGetLength(mstr);
-    char *c_str = (char *)malloc(length + 1);
+    char *c_str    = (char *)malloc(length + 1);
     CFStringGetCString(mstr, c_str, length, kCFStringEncodingUTF8);
 
     std::string str(c_str);
@@ -37,7 +38,8 @@ static std::string GetString(DLString mstr)
 }
 #else
 typedef const char *DLString;
-static std::string GetString(DLString str)
+static std::string
+GetString(DLString str)
 {
     return str;
 }
@@ -45,7 +47,8 @@ static std::string GetString(DLString str)
 
 #ifdef DLWRAPPER_LOGGING
 template <typename T>
-static std::string Demangle()
+static std::string
+Demangle()
 {
     static std::string res;
     if (!res.empty()) {
@@ -58,13 +61,11 @@ static std::string Demangle()
     int status;
     char *c_str = abi::__cxa_demangle(res.c_str(), nullptr, nullptr, &status);
 
-    if (status == 0)
-    {
+    if (status == 0) {
         res = c_str;
     }
 
-    if (c_str != nullptr)
-    {
+    if (c_str != nullptr) {
         free(c_str);
     }
 
@@ -76,10 +77,10 @@ template <typename T>
 class DLWrapper;
 
 template <typename T>
-static std::shared_ptr<DLWrapper<T>> DLMakeShared(T *_item)
+static std::shared_ptr<DLWrapper<T>>
+DLMakeShared(T *_item)
 {
-    if (!_item)
-    {
+    if (!_item) {
         return nullptr;
     }
 
@@ -103,13 +104,13 @@ public:
 #ifdef DLWRAPPER_LOGGING
         std::cout << "Releasing: " << Demangle<T>() << " " << (uint64_t)this->item << std::endl;
 #endif
-        if (this->item)
-        {
+        if (this->item) {
             this->item->Release();
         }
     }
 
-    T *Get() const
+    T *
+    Get() const
     {
         return this->item;
     }
@@ -125,16 +126,15 @@ public:
     }
 
     // For use in conjunction with the WRAPPED_FROM_IUNKNOWN macro to spin up wrapped instances from a IUnknown query
-    static std::shared_ptr<DLWrapper<T>> FromIUnknown(IUnknown *iface, REFIID iid)
+    static std::shared_ptr<DLWrapper<T>>
+    FromIUnknown(IUnknown *iface, REFIID iid)
     {
-        if (iface == nullptr)
-        {
+        if (iface == nullptr) {
             return nullptr;
         }
 
         T *t;
-        if (SUCCEEDED(iface->QueryInterface(iid, (void **)&t)))
-        {
+        if (SUCCEEDED(iface->QueryInterface(iid, (void **)&t))) {
             return DLMakeShared(t);
         }
 
@@ -143,14 +143,14 @@ public:
 
     // For use in conjunction with the WRAPPED_FROM_IUNKNOWN macro to spin up wrapped instances from a wrapped IUnknown
     template <typename P>
-    static std::shared_ptr<DLWrapper<T>> FromIUnknown(std::shared_ptr<DLWrapper<P>> wIface, REFIID iid)
+    static std::shared_ptr<DLWrapper<T>>
+    FromIUnknown(std::shared_ptr<DLWrapper<P>> wIface, REFIID iid)
     {
-        if (!wIface)
-        {
+        if (!wIface) {
             return nullptr;
         }
 
-        return FromIUnknown(wIface.get()->Get(), iid);
+        return FromIUnknown(&**wIface, iid);
     }
 
 private:

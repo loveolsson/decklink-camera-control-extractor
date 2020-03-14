@@ -1,14 +1,15 @@
 #pragma once
+#include "include/DeckLinkAPI.h"
 #include "mutexfifo.h"
 
-#include "include/DeckLinkAPI.h"
-
 #include <stdint.h>
-#include <chrono>
-#include <vector>
-#include <memory>
 
-template <typename T> class DLWrapper;
+#include <chrono>
+#include <memory>
+#include <vector>
+
+template <typename T>
+class DLWrapper;
 
 std::shared_ptr<DLWrapper<IDeckLinkInput>> GetDeckLinkByNameOrFirst(const char *name);
 
@@ -18,8 +19,11 @@ public:
     DeckLinkReceiver(std::shared_ptr<DLWrapper<IDeckLinkInput>> _wDeckLinkInput, ByteFifo &_fifo);
     ~DeckLinkReceiver();
 
-    HRESULT VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame, IDeckLinkAudioInputPacket *audioPacket);
-    HRESULT VideoInputFormatChanged(BMDVideoInputFormatChangedEvents notificationEvents, IDeckLinkDisplayMode *newDisplayMode, BMDDetectedVideoInputFormatFlags detectedSignalFlags);
+    HRESULT VideoInputFrameArrived(IDeckLinkVideoInputFrame *videoFrame,
+                                   IDeckLinkAudioInputPacket *audioPacket);
+    HRESULT VideoInputFormatChanged(BMDVideoInputFormatChangedEvents notificationEvents,
+                                    IDeckLinkDisplayMode *newDisplayMode,
+                                    BMDDetectedVideoInputFormatFlags detectedSignalFlags);
 
     virtual HRESULT QueryInterface(REFIID, void **) final;
     virtual ULONG AddRef() final;

@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+
 #include <cstddef>
 
 uint8_t CRC(uint8_t *data, size_t length);

@@ -2,9 +2,8 @@
 
 struct CommandInfo;
 
-struct Command
-{
-  const char *name;
+struct Command {
+    const char *name;
 };
 
 const Command *GetCommandFromData(const CommandInfo *data);

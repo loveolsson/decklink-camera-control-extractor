@@ -1,6 +1,5 @@
 #pragma once
-#include <stddef.h>  // for size_t
-#include <stdint.h>  // for uint8_t
+struct Packet;
 
 class SerialOutput
 {
@@ -9,7 +8,7 @@ public:
     ~SerialOutput();
 
     bool Begin();
-    void Write(uint8_t *data, size_t size);
+    void Write(Packet &pkt);
 
 private:
     const char *deviceName;
