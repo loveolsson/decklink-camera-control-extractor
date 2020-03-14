@@ -7,7 +7,7 @@
 #define NUM(a) (sizeof(a) / sizeof(*a))
 #define PKT_PADDING(x) (((x + 3) / 4) * 4)
 
-const uint8_t leadInBytes[] = {0xFE, 0xFC, 0xFE};
+const uint8_t leadInBytes[] = {'B', 'M', 'E'};
 
 #pragma pack(push, 1)
 struct CommandInfo {
