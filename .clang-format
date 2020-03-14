@@ -1,0 +1,63 @@
+BasedOnStyle: Google
+ColumnLimit: 100
+---
+Language: Cpp
+IndentCaseLabels: true
+IndentWidth: 4
+Standard: Auto
+PointerBindsToType: false
+SpacesBeforeTrailingComments: 2
+AccessModifierOffset: -1
+AlignEscapedNewlinesLeft: true
+AlignConsecutiveAssignments: true
+AlignTrailingComments: true
+
+# Deprecated
+AlwaysBreakAfterDefinitionReturnType: true
+AlwaysBreakAfterReturnType: AllDefinitions
+
+AlwaysBreakBeforeMultilineStrings: false
+AlwaysBreakTemplateDeclarations: Yes
+
+# Deprecated
+BreakConstructorInitializersBeforeComma: true
+
+BreakConstructorInitializers: BeforeComma
+
+BreakInheritanceList: BeforeComma
+
+# BreakBeforeBraces: Linux
+BreakBeforeBraces: Custom
+AccessModifierOffset: -4
+ConstructorInitializerAllOnOneLineOrOnePerLine: false
+AllowShortFunctionsOnASingleLine: false
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+DerivePointerBinding: false
+BraceWrapping: {
+    AfterNamespace: 'false'
+    AfterClass: 'true'
+    BeforeElse: 'false'
+    AfterControlStatement: 'false'
+    AfterFunction: 'true'
+    BeforeCatch: 'false'
+}
+IncludeBlocks: Regroup
+IncludeCategories:
+# Project includes
+  - Regex:  '^"[a-zA-Z\._-]+(/[a-zA-Z\._-]+)*"$'
+    Priority: 1
+# Third party library includes
+  - Regex:  '<[[:alnum:].]+/[a-zA-Z\._\/-]+>'
+    Priority: 3
+# Standard library includes
+  - Regex:  '^<[a-zA-Z_]+>$'
+    Priority: 4
+
+# Might need to comment this out if you don't have the latest clang installed
+FixNamespaceComments: true
+
+ReflowComments: false
+---
+Language: JavaScript
+IndentWidth: 2
