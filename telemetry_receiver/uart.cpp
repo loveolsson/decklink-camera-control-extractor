@@ -1,22 +1,11 @@
 #include "uart.h"
 
 #include "driver/uart.h"
+#include "include/crc.h"
 
 #include "esp32_defines.h"
 
 static QueueHandle_t uart_queue;
-
-uint8_t
-CRC(uint8_t *data, size_t size)
-{
-    uint8_t sum = 0;
-
-    for (size_t i = 0; i < size; ++i) {
-        sum ^= data[i];
-    }
-
-    return sum;
-}
 
 void
 InitUART()

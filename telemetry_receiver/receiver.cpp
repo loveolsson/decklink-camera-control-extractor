@@ -1,6 +1,7 @@
 #include "receiver.h"
 
 #include "include/commands.h"
+#include "include/crc.h"
 #include "uart.h"
 
 #include "I2CCustom.h"
@@ -143,22 +144,16 @@ ReceiverWireLoop(void *_runState)
     }
 }
 
-struct MasterHeader {
-    uint8_t size;
-    uint8_t crc;
-};
-
 void
 ReceiverSerialLoop(void *_runState)
 {
     RunState *runState = static_cast<RunState *>(_runState);
-
-    MasterHeader masterHeader;
+    static_assert(leadInBytes.size() == 3, "Size of leadInBytes is incorrect");
 
     while (true) {
         // Search for the lead in bytes of 3 x 0xFE
         int i = 0;
-        while (i < NUM(leadInBytes)) {
+        while (i < leadInBytes.size()) {
             if (!UARTAvailable()) {
                 vTaskDelay(1);
                 continue;
@@ -173,6 +168,7 @@ ReceiverSerialLoop(void *_runState)
         }
 
         // Wait for the master header to be available from the UART buffer
+        MasterHeader masterHeader;
         while (UARTAvailable() < sizeof(MasterHeader)) {
             vTaskDelay(1);
         }

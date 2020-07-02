@@ -2,14 +2,20 @@
 
 #include <stddef.h>
 
+#include <array>
 #include <cstdint>
 
 #define NUM(a) (sizeof(a) / sizeof(*a))
 #define PKT_PADDING(x) (((x + 3) / 4) * 4)
 
-const uint8_t leadInBytes[] = {'B', 'M', 'E'};
+static const std::array<uint8_t, 3> leadInBytes = {'B', 'M', 'E'};
 
 #pragma pack(push, 1)
+struct MasterHeader {
+    uint8_t size;
+    uint8_t crc;
+};
+
 struct CommandInfo {
     uint8_t category;
     uint8_t parameter;
@@ -60,6 +66,8 @@ struct Packet {
 };
 #pragma pack(pop)
 
+static_assert(leadInBytes.size() == 3, "Size of leadInBytes is not correct");
+static_assert(sizeof(MasterHeader) == 2, "Size of MasterHeader is not correct");
 static_assert(sizeof(Header) == 4, "Size of Header is not correct");
 static_assert(sizeof(CommandInfo) == 3, "Size of CommandInfo is not correct");
 static_assert(sizeof(Packet) == 64, "Size of Packet is not correct");

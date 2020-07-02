@@ -5,13 +5,14 @@
 #include <stdint.h>
 
 #include <chrono>
+#include <iosfwd>
 #include <memory>
 #include <vector>
 
 template <typename T>
 class DLWrapper;
 
-std::shared_ptr<DLWrapper<IDeckLinkInput>> GetDeckLinkByNameOrFirst(const char *name);
+std::shared_ptr<DLWrapper<IDeckLinkInput>> GetDeckLinkByNameOrFirst(const std::string &name);
 
 class DeckLinkReceiver : public IDeckLinkInputCallback
 {

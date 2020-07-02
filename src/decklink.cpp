@@ -3,19 +3,17 @@
 #include "defines.h"
 #include "dlwrapper.h"
 
-#include <string.h>
-
 #include <algorithm>
 #include <cstdint>
 #include <iostream>
+#include <ratio>
 #include <string>
 
 static constexpr auto tallyInterval = std::chrono::seconds(5);
 
 std::shared_ptr<DLWrapper<IDeckLinkInput>>
-GetDeckLinkByNameOrFirst(const char *name)
+GetDeckLinkByNameOrFirst(const std::string &name)
 {
-    IDeckLink *deckLink;
     auto wIterator = DLMakeShared(CreateDeckLinkIteratorInstance());
 
     if (!wIterator) {
@@ -23,16 +21,20 @@ GetDeckLinkByNameOrFirst(const char *name)
         return nullptr;
     }
 
-    while ((*wIterator)->Next(&deckLink) == S_OK) {
-        DLWrapper wDeckLink(deckLink);
+    IDeckLink *deckLink;
 
+    while (SUCCEEDED((*wIterator)->Next(&deckLink))) {
+        DLWrapper wDeckLink(deckLink);
         DLString devName;
-        if (deckLink->GetDisplayName(&devName) == S_OK) {
-            if (GetString(devName) == name || strlen(name) == 0) {
-                auto wDeckLinkInput = WRAPPED_FROM_IUNKNOWN(deckLink, IDeckLinkInput);
-                if (wDeckLinkInput) {
-                    return wDeckLinkInput;
-                }
+
+        if (FAILED(deckLink->GetDisplayName(&devName))) {
+            continue;
+        }
+
+        if (name.empty() || GetString(devName) == name) {
+            auto wDeckLinkInput = WRAPPED_FROM_IUNKNOWN(deckLink, IDeckLinkInput);
+            if (wDeckLinkInput) {
+                return wDeckLinkInput;
             }
         }
     }
@@ -68,9 +70,11 @@ DeckLinkReceiver::DeckLinkReceiver(std::shared_ptr<DLWrapper<IDeckLinkInput>> _w
         return;
     }
 
+    auto deckLinkInput = (*this->wDeckLinkInput).Get();
+
     {
         // Some legacy DeckLink cards can only capture VANC-data if the pixel format is 10bit
-        auto attr = WRAPPED_FROM_IUNKNOWN(this->wDeckLinkInput, IDeckLinkProfileAttributes);
+        auto attr = WRAPPED_FROM_IUNKNOWN(deckLinkInput, IDeckLinkProfileAttributes);
         if (!attr) {
             std::cout << "Could not get IDeckLinkProfileAttributes." << std::endl;
             return;
@@ -83,20 +87,20 @@ DeckLinkReceiver::DeckLinkReceiver(std::shared_ptr<DLWrapper<IDeckLinkInput>> _w
         }
     }
 
-    if (FAILED((*this->wDeckLinkInput)->SetCallback(this))) {
+    if (FAILED(deckLinkInput->SetCallback(this))) {
         std::cout << "Failed to set input callback." << std::endl;
         return;
     }
 
     BMDPixelFormat format = requires10bit ? bmdFormat10BitYUV : bmdFormat8BitYUV;
 
-    if (FAILED((*this->wDeckLinkInput)
-                   ->EnableVideoInput(bmdModeNTSC, format, bmdVideoInputEnableFormatDetection))) {
+    if (FAILED(deckLinkInput->EnableVideoInput(bmdModeNTSC, format,
+                                               bmdVideoInputEnableFormatDetection))) {
         std::cout << "Failed to enable video stream." << std::endl;
         return;
     }
 
-    if (FAILED((*this->wDeckLinkInput)->StartStreams())) {
+    if (FAILED(deckLinkInput->StartStreams())) {
         std::cout << "Failed to start video stream." << std::endl;
     }
 }
