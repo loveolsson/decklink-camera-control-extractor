@@ -12,12 +12,13 @@ InitUART()
 {
     const int uart_buffer_size = (1024 * 2);
 
-    uart_config_t uart_config = {};
-    uart_config.baud_rate     = 9600;
-    uart_config.data_bits     = UART_DATA_8_BITS;
-    uart_config.parity        = UART_PARITY_DISABLE;
-    uart_config.stop_bits     = UART_STOP_BITS_1;
-    uart_config.flow_ctrl     = UART_HW_FLOWCTRL_DISABLE;
+    uart_config_t uart_config = {
+        .baud_rate = 9600,
+        .data_bits = UART_DATA_8_BITS,
+        .parity    = UART_PARITY_DISABLE,
+        .stop_bits = UART_STOP_BITS_1,
+        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
+    };
 
     // Configure UART parameters
     ESP_ERROR_CHECK(uart_param_config(UART_PORT, &uart_config));
@@ -35,7 +36,7 @@ UARTAvailable()
     return ret;
 }
 
-uint8_t
+int
 UARTReadBytes(uint8_t *data, const size_t size)
 {
     return uart_read_bytes(UART_PORT, data, size, 100);

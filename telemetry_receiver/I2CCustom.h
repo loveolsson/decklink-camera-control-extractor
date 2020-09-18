@@ -14,14 +14,17 @@
 
 #if 0
 template <typename T>
-static inline T EndianSwap(T& in) {
-  T res;
+static inline T
+EndianSwap(T &in)
+{
+    T res;
+    const uint8_t *ptr = (uint8_t *)&in;
 
-  for (int i = 0; i < sizeof(T); ++i) {
-    ((uint8_t*)&res)[i] = ((uint8_t*)&in)[sizeof(T) - i - 1];
-  }
+    for (int i = 0; i < sizeof(T); ++i) {
+        res[i] = ptr[sizeof(T) - i - 1];
+    }
 
-  return res;
+    return res;
 }
 #else
 #define EndianSwap(T) (T)
